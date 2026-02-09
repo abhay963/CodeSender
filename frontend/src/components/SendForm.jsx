@@ -98,7 +98,7 @@ const SendForm = () => {
   const [channel, setChannel] = useState("email");
   const [content, setContent] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(""); // ONLY 10 digits
   const [title, setTitle] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -122,10 +122,11 @@ const SendForm = () => {
     if (channel === "email" && !email.trim())
       return toast.error("Email required");
     if (channel === "whatsapp" && phone.length !== 10)
-      return toast.error("Invalid WhatsApp number");
+      return toast.error("Enter a valid 10-digit WhatsApp number");
 
     try {
       setLoading(true);
+
       const base64Images = await Promise.all(images.map(toBase64));
 
       const payload = {
@@ -134,7 +135,7 @@ const SendForm = () => {
         title,
         images: base64Images,
         email,
-        phone: channel === "whatsapp" ? `+91${phone}` : phone,
+        phone: channel === "whatsapp" ? `+91${phone}` : phone, // 🔒 FIXED
       };
 
       const res = await axios.post(
@@ -177,7 +178,7 @@ const SendForm = () => {
         <div className="flex gap-3 mb-4">
           <button
             onClick={() => setChannel("email")}
-            className={`flex-1 py-3 rounded-xl ${
+            className={`flex-1 py-3 rounded-xl cursor-pointer ${
               channel === "email"
                 ? "bg-purple-600"
                 : "bg-black/30 text-gray-400"
@@ -185,9 +186,10 @@ const SendForm = () => {
           >
             <FaEnvelope className="inline mr-2" /> Email
           </button>
+
           <button
             onClick={() => setChannel("whatsapp")}
-            className={`flex-1 py-3 rounded-xl ${
+            className={`flex-1 py-3 rounded-xl  cursor-pointer ${
               channel === "whatsapp"
                 ? "bg-green-600"
                 : "bg-black/30 text-gray-400"
@@ -212,6 +214,7 @@ const SendForm = () => {
           className="w-full mb-3 p-3 rounded-xl bg-black/30 font-mono"
         />
 
+        {/* EMAIL / WHATSAPP */}
         {channel === "email" ? (
           <input
             value={email}
@@ -220,14 +223,24 @@ const SendForm = () => {
             className="w-full mb-3 p-3 rounded-xl bg-black/30"
           />
         ) : (
-          <input
-            value={phone}
-            onChange={(e) =>
-              setPhone(e.target.value.replace(/\D/g, ""))
-            }
-            placeholder="WhatsApp Number"
-            className="w-full mb-3 p-3 rounded-xl bg-black/30"
-          />
+          <div className="flex mb-3">
+            {/* LOCKED +91 */}
+            <span className="px-4 py-3 bg-black/50 border border-white/10 rounded-l-xl text-gray-300 select-none">
+              +91
+            </span>
+
+            {/* USER TYPES ONLY DIGITS */}
+            <input
+              type="text"
+              value={phone}
+              maxLength={10}
+              onChange={(e) =>
+                setPhone(e.target.value.replace(/\D/g, ""))
+              }
+              placeholder="WhatsApp number"
+              className="flex-1 p-3 rounded-r-xl bg-black/30 outline-none"
+            />
+          </div>
         )}
 
         {/* IMAGE UPLOAD */}
@@ -270,7 +283,7 @@ const SendForm = () => {
           whileTap={{ scale: 0.97 }}
           onClick={handleSend}
           disabled={loading}
-          className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 font-bold"
+          className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 font-bold cursor-pointer"
         >
           <FaPaperPlane className="inline mr-2" />
           {loading ? "Sending..." : "Send"}
