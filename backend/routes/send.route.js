@@ -1,5 +1,4 @@
 import express from "express";
-import cloudinary from "../config/cloudinary.js";
 import { sendWhatsApp } from "../services/whatsapp.service.js";
 import { sendEmail } from "../services/email.service.js";
 import { validateRequest } from "../utils/validate.js";
@@ -10,7 +9,8 @@ router.post("/", async (req, res) => {
   console.log("📥 /api/send hit");
 
   try {
-    const { channel, content, email, phone, title } = req.body;
+    // ✅ IMPORTANT: include images
+    const { channel, content, email, phone, title, images } = req.body;
 
     console.log("📦 Payload received:", {
       channel,
@@ -18,6 +18,10 @@ router.post("/", async (req, res) => {
       phone,
       hasContent: !!content,
       contentLength: content?.length,
+      imagesExists: !!images,
+      imagesIsArray: Array.isArray(images),
+      imagesCount: images?.length,
+      imageSample: images?.[0]?.slice?.(0, 30), // base64 preview
     });
 
     // ================= EMAIL =================
@@ -30,10 +34,24 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ message: error });
       }
 
-      await sendEmail(email, content, [], title);
-      console.log("✅ Email sent successfully");
+      // 🛑 STRONG IMAGE CHECKS
+      if (images && !Array.isArray(images)) {
+        console.log("❌ Images is not an array");
+        return res.status(400).json({ message: "Invalid images format" });
+      }
 
-      return res.json({ message: "Email sent successfully!" });
+      if (Array.isArray(images)) {
+        console.log(`🖼 Sending ${images.length} image(s) via email`);
+      }
+
+      // ✅ PASS IMAGES (THIS WAS THE MAIN BUG)
+      await sendEmail(email, content, images || [], title);
+
+      console.log("✅ Email sent successfully with attachments");
+
+      return res.json({
+        message: "Email sent successfully!",
+      });
     }
 
     // ================= WHATSAPP =================
@@ -46,7 +64,6 @@ router.post("/", async (req, res) => {
       }
 
       console.log("📞 WhatsApp target:", phone);
-      console.log("🧪 About to call sendWhatsApp");
 
       await sendWhatsApp(phone, title, content);
 
@@ -68,6 +85,5 @@ router.post("/", async (req, res) => {
     });
   }
 });
-
 
 export default router;
