@@ -98,7 +98,7 @@ const SendForm = () => {
   const [channel, setChannel] = useState("email");
   const [content, setContent] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState(""); // ONLY 10 digits
+  const [phone, setPhone] = useState(""); 
   const [title, setTitle] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
