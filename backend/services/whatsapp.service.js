@@ -31,10 +31,9 @@ export const sendWhatsApp = async (to, title, content) => {
 
   console.log("🧩 Total WhatsApp chunks:", chunks.length);
 
-  // 🔴 LIMIT chunks to avoid Vercel timeout
   const MAX_PARTS = 2;
 
-  // Send title first (if present)
+  // ================= TITLE =================
   if (title) {
     console.log("📝 Sending title message...");
 
@@ -49,11 +48,13 @@ export const sendWhatsApp = async (to, title, content) => {
     } catch (err) {
       console.error("❌ ERROR sending title message");
       console.error(err);
-      throw err;
+
+      // 🔥 ONLY CHANGE
+      throw new Error("Today’s WhatsApp message limit is exhausted");
     }
   }
 
-  // Send code chunks
+  // ================= CHUNKS =================
   for (let i = 0; i < Math.min(chunks.length, MAX_PARTS); i++) {
     console.log(`📤 Sending chunk ${i + 1}/${chunks.length}`);
 
@@ -68,7 +69,9 @@ export const sendWhatsApp = async (to, title, content) => {
     } catch (err) {
       console.error(`❌ ERROR sending chunk ${i + 1}`);
       console.error(err);
-      throw err;
+
+      // 🔥 ONLY CHANGE
+      throw new Error("Today’s WhatsApp message limit is exhausted");
     }
   }
 

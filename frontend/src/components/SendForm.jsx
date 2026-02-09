@@ -102,9 +102,21 @@ const SendForm = () => {
   const [title, setTitle] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+const [passkey, setPasskey] = useState("");
+
 
   const removeImage = (i) =>
     setImages((prev) => prev.filter((_, idx) => idx !== i));
+  const handleUnlock = () => {
+  if (passkey === "4176") {
+    setIsUnlocked(true);
+    toast.success("Access granted 🔓");
+  } else {
+    toast.error("Wrong passkey ❌");
+  }
+};
+
 
   const handlePaste = (e) => {
     const items = e.clipboardData?.items;
@@ -149,12 +161,53 @@ const SendForm = () => {
       setPhone("");
       setTitle("");
       setImages([]);
-    } catch {
-      toast.error("Failed to send");
-    } finally {
+    }  catch (err) {
+  toast.error(
+    "Today’s WhatsApp message limit is exhausted.Try Using Mail"
+  );
+}
+finally {
       setLoading(false);
     }
   };
+
+  if (!isUnlocked) {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 text-white">
+      {/* ✅ SAME BACKGROUND */}
+      <StarBackground />
+      <ToastContainer theme="dark" />
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 w-full max-w-sm shadow-2xl z-10"
+      >
+        <h2 className="text-2xl font-bold text-center mb-4">
+          Enter Passkey 🔐
+        </h2>
+
+        <input
+          type="password"
+          maxLength={4}
+          value={passkey}
+          onChange={(e) =>
+            setPasskey(e.target.value.replace(/\D/g, ""))
+          }
+          placeholder="4-digit passkey"
+          className="w-full text-center tracking-widest text-xl p-3 rounded-xl bg-black/40 mb-4"
+        />
+
+        <button
+          onClick={handleUnlock}
+          className="w-full py-3 rounded-xl bg-purple-600 font-bold cursor-pointer"
+        >
+          Unlock
+        </button>
+      </motion.div>
+    </div>
+  );
+}
 
   return (
     <div
