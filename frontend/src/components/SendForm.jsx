@@ -74,7 +74,11 @@ const SendForm = () => {
         phone: channel === "whatsapp" ? `+91${phone}` : phone,
       };
 
-      const res = await axios.post("/api/send", payload);
+    const res = await axios.post(
+  `${import.meta.env.VITE_BACKEND_URL}/api/send`,
+  payload
+);
+
 
 
       toast.success(res.data.message || "Sent successfully!");
