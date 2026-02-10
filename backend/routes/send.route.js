@@ -6,17 +6,13 @@ import { validateRequest } from "../utils/validate.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  console.log("📥 /api/send hit");
-
   try {
     const { channel, content, email, phone, title, images } = req.body;
 
     // EMAIL
     if (channel === "email") {
       const error = validateRequest({ content, email });
-      if (error) {
-        return res.status(400).json({ message: error });
-      }
+      if (error) return res.status(400).json({ message: error });
 
       await sendEmail(email, content, images || [], title);
       return res.json({ message: "Email sent successfully!" });
@@ -24,20 +20,17 @@ router.post("/", async (req, res) => {
 
     // WHATSAPP
     if (channel === "whatsapp") {
-      if (!phone) {
-        return res
-          .status(400)
-          .json({ message: "WhatsApp number required" });
-      }
+      if (!phone)
+        return res.status(400).json({ message: "WhatsApp number required" });
 
       await sendWhatsApp(phone, title, content, images || []);
       return res.json({ message: "WhatsApp sent successfully!" });
     }
 
-    return res.status(400).json({ message: "Invalid channel" });
+    res.status(400).json({ message: "Invalid channel" });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
