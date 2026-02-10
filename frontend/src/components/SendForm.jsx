@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
-
 
 import {
   FaEnvelope,
-  FaInfoCircle ,
+  FaInfoCircle,
   FaWhatsapp,
   FaPaperPlane,
   FaTimes,
@@ -44,10 +43,7 @@ const StarBackground = () => {
       positions[i] = (Math.random() - 0.5) * 10;
     }
 
-    geometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(positions, 3)
-    );
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
     const material = new THREE.PointsMaterial({
       color: 0x8b5cf6,
@@ -98,25 +94,45 @@ const toBase64 = (file) =>
 
 /* ================= MAIN COMPONENT ================= */
 const SendForm = () => {
+  const CORRECT_PASSKEY = "4176";
+
+  const unlockingRef = useRef(false);
+
+  const [shake, setShake] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [passkey, setPasskey] = useState("");
+
   const [channel, setChannel] = useState("email");
   const [content, setContent] = useState("");
-  const [emailUser, setEmailUser] = useState(""); // ✅ username only
+  const [emailUser, setEmailUser] = useState("");
   const [phone, setPhone] = useState("");
   const [title, setTitle] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [passkey, setPasskey] = useState("");
 
   const removeImage = (i) =>
     setImages((prev) => prev.filter((_, idx) => idx !== i));
 
-  const handleUnlock = () => {
-    if (passkey === "4176") {
-      setIsUnlocked(true);
-      toast.success("Access granted 🔓");
+  /* ================= PASSKEY LOGIC ================= */
+  const handleUnlock = (val) => {
+    if (unlockingRef.current) return;
+
+    if (val === CORRECT_PASSKEY) {
+      unlockingRef.current = true;
+      setIsSuccess(true);
+
+      setTimeout(() => {
+        setIsUnlocked(true);
+      }, 1400);
     } else {
-      toast.error("Wrong passkey ❌");
+      toast.error("❌ Wrong passkey");
+      setShake(true);
+
+      setTimeout(() => {
+        setShake(false);
+        setPasskey("");
+      }, 400);
     }
   };
 
@@ -152,12 +168,10 @@ const SendForm = () => {
         phone: channel === "whatsapp" ? `+91${phone}` : phone,
       };
 
-   const res = await axios.post(
-  `${import.meta.env.VITE_BACKEND_URL}/api/send`,
-  payload
-);
-
-
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/send`,
+        payload
+      );
 
       toast.success(res.data.message || "Sent 🚀");
       setContent("");
@@ -165,49 +179,145 @@ const SendForm = () => {
       setPhone("");
       setTitle("");
       setImages([]);
-    } catch (err) {
-      toast.error("Today’s WhatsApp message limit is exhausted.Try Using Mail");
+    } catch {
+      toast.error("Today’s WhatsApp limit exhausted. Try Email.");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!isUnlocked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 text-white">
-        <StarBackground />
-        <ToastContainer theme="dark" />
+  /* ================= LOCK SCREEN ================= */
+/* ================= LOCK SCREEN ================= */
+if (!isUnlocked) {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 text-white relative overflow-hidden">
+      {/* STAR BACKGROUND ALWAYS VISIBLE */}
+      <StarBackground />
+      <ToastContainer theme="dark" />
 
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 w-full max-w-sm shadow-2xl z-10"
-        >
-          <h2 className="text-2xl font-bold text-center mb-4">
-            Enter Passkey 🔐
-          </h2>
-
-          <input
-            type="password"
-            maxLength={4}
-            value={passkey}
-            onChange={(e) =>
-              setPasskey(e.target.value.replace(/\D/g, ""))
+      <AnimatePresence mode="wait">
+        {!isSuccess ? (
+          <motion.div
+            key="lock"
+            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+            animate={
+              shake
+                ? { x: [-12, 12, -8, 8, 0] }
+                : { opacity: 1, scale: 1, y: 0 }
             }
-            placeholder="4-digit passkey"
-            className="w-full text-center tracking-widest text-xl p-3 rounded-xl bg-black/40 mb-4"
-          />
-
-          <button
-            onClick={handleUnlock}
-            className="w-full py-3 rounded-xl bg-purple-600 font-bold cursor-pointer"
+            transition={{ duration: 0.4 }}
+            className="relative w-full max-w-sm"
           >
-            Unlock
-          </button>
-        </motion.div>
-      </div>
-    );
-  }
+            {/* GLOW BORDER */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 blur-xl opacity-30" />
+
+            {/* CARD */}
+            <div className="relative bg-gray-900/70 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+              <h2 className="text-3xl font-bold text-center mb-2 tracking-wide">
+                Secure Access
+              </h2>
+              <p className="text-sm text-gray-400 text-center mb-8">
+                Enter your 4-digit passkey
+              </p>
+
+              {/* PASSKEY DOTS */}
+              <div className="flex justify-center gap-4 mb-8">
+                {[0, 1, 2, 3].map((i) => (
+                  <motion.div
+                    key={i}
+                    animate={{
+                      scale: passkey.length > i ? 1.15 : 1,
+                      backgroundColor:
+                        passkey.length > i
+                          ? "rgba(34,211,238,0.25)"
+                          : "rgba(255,255,255,0.06)",
+                      borderColor:
+                        passkey.length > i
+                          ? "#22d3ee"
+                          : "rgba(255,255,255,0.15)",
+                    }}
+                    transition={{ type: "spring", stiffness: 260 }}
+                    className="h-14 w-14 rounded-2xl border flex items-center justify-center"
+                  >
+                    {passkey.length > i && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                        className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.9)]"
+                      />
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* INVISIBLE INPUT */}
+              <input
+                type="tel"
+                inputMode="numeric"
+                maxLength={4}
+                autoFocus
+                value={passkey}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  setPasskey(val);
+                  if (val.length === 4) handleUnlock(val);
+                }}
+                className="absolute inset-0 opacity-0"
+              />
+
+              {/* PULSE TEXT */}
+              <motion.p
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-xs text-center text-gray-500 tracking-widest"
+              >
+                🔐 ENCRYPTED INPUT
+              </motion.p>
+            </div>
+          </motion.div>
+        ) : (
+          /* SUCCESS STATE (NO FULLSCREEN BG – STARS STILL SHOW) */
+          <motion.div
+            key="success"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="flex flex-col items-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 220 }}
+              className="w-28 h-28 rounded-full bg-green-500/20 border border-green-400 flex items-center justify-center shadow-[0_0_40px_rgba(34,197,94,0.6)]"
+            >
+              <motion.svg
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.6 }}
+                viewBox="0 0 24 24"
+                className="w-14 h-14 text-green-400"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+              >
+                <path d="M5 13l4 4L19 7" />
+              </motion.svg>
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 text-green-300 tracking-widest text-sm"
+            >
+              ACCESS GRANTED
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 
   return (
     <div
