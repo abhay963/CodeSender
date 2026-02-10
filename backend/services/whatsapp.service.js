@@ -6,32 +6,36 @@ const client = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
+const splitText = (text, size = 3000) => {
+  const parts = [];
+  for (let i = 0; i < text.length; i += size) {
+    parts.push(text.substring(i, i + size));
+  }
+  return parts;
+};
+
 export const sendWhatsApp = async (to, title, content, images = []) => {
-  console.log("➡️ sendWhatsApp() called");
+  const textParts = splitText(
+    `${title ? `📄 ${title}\n\n` : ""}${content}`
+  );
 
-  // 1️⃣ Send TEXT first
-  await client.messages.create({
-    from: process.env.TWILIO_WHATSAPP_FROM,
-    to: `whatsapp:${to}`,
-    body: `${title ? `📄 ${title}\n\n` : ""}${content}`,
-  });
+  // 1️⃣ Send text in parts
+  for (const part of textParts) {
+    await client.messages.create({
+      from: process.env.TWILIO_WHATSAPP_FROM,
+      to: `whatsapp:${to}`,
+      body: part,
+    });
+  }
 
-  console.log("✅ Text sent");
+  // 2️⃣ Send images one by one
+  for (let i = 0; i < images.length; i++) {
+    const imageUrl = await uploadBase64ToCloudinary(images[i]);
 
-  // 2️⃣ Send EACH image separately
-  if (Array.isArray(images) && images.length > 0) {
-    console.log(`🖼 Sending ${images.length} image(s)`);
-
-    for (let i = 0; i < images.length; i++) {
-      const imageUrl = await uploadBase64ToCloudinary(images[i]);
-
-      await client.messages.create({
-        from: process.env.TWILIO_WHATSAPP_FROM,
-        to: `whatsapp:${to}`,
-        mediaUrl: [imageUrl], // ⚠️ ONE IMAGE ONLY
-      });
-
-      console.log(`✅ Image ${i + 1} sent`);
-    }
+    await client.messages.create({
+      from: process.env.TWILIO_WHATSAPP_FROM,
+      to: `whatsapp:${to}`,
+      mediaUrl: [imageUrl],
+    });
   }
 };
