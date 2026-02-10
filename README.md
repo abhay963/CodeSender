@@ -7,11 +7,7 @@ Built for developers who want to share code **fast, clean, and securely**.
 
 ---
 
-## 🎥 Preview
 
-<p align="center">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXF2Y2RkOWM3cHVlMXl2eDV6ZHN1eGZ0b2RrMWZyY3Y0b3ZqY3Y0YiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0HlNQ03J5JxX6lva/giphy.gif" width="700"/>
-</p>
 
 ---
 
