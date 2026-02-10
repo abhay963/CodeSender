@@ -1,38 +1,37 @@
 import twilio from "twilio";
+import { uploadBase64ToCloudinary } from "../utils/upload.js";
 
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
 
-const MAX_CHARS = 1500;
+export const sendWhatsApp = async (to, title, content, images = []) => {
+  console.log("➡️ sendWhatsApp() called");
 
-export const sendWhatsApp = async (to, title, content, mediaUrls = []) => {
-  if (!content) throw new Error("WhatsApp content is empty");
+  // 1️⃣ Send TEXT first
+  await client.messages.create({
+    from: process.env.TWILIO_WHATSAPP_FROM,
+    to: `whatsapp:${to}`,
+    body: `${title ? `📄 ${title}\n\n` : ""}${content}`,
+  });
 
-  const chunks = [];
-  for (let i = 0; i < content.length; i += MAX_CHARS) {
-    chunks.push(content.slice(i, i + MAX_CHARS));
-  }
+  console.log("✅ Text sent");
 
-  // ---------- TITLE ----------
-  if (title) {
-    await client.messages.create({
-      from: process.env.TWILIO_WHATSAPP_FROM,
-      to: `whatsapp:${to}`,
-      body: `📄 ${title}`,
-    });
-  }
+  // 2️⃣ Send EACH image separately
+  if (Array.isArray(images) && images.length > 0) {
+    console.log(`🖼 Sending ${images.length} image(s)`);
 
-  // ---------- CONTENT ----------
-  for (let i = 0; i < Math.min(chunks.length, 2); i++) {
-    await client.messages.create({
-      from: process.env.TWILIO_WHATSAPP_FROM,
-      to: `whatsapp:${to}`,
-      body: `📄 Code (${i + 1}/${chunks.length})\n\n${chunks[i]}`,
-      ...(mediaUrls.length > 0 && i === 0
-        ? { mediaUrl: mediaUrls }
-        : {}),
-    });
+    for (let i = 0; i < images.length; i++) {
+      const imageUrl = await uploadBase64ToCloudinary(images[i]);
+
+      await client.messages.create({
+        from: process.env.TWILIO_WHATSAPP_FROM,
+        to: `whatsapp:${to}`,
+        mediaUrl: [imageUrl], // ⚠️ ONE IMAGE ONLY
+      });
+
+      console.log(`✅ Image ${i + 1} sent`);
+    }
   }
 };

@@ -152,7 +152,7 @@ const SendForm = () => {
         phone: channel === "whatsapp" ? `+91${phone}` : phone,
       };
 
-      const res = await axios.post(
+   const res = await axios.post(
   `${import.meta.env.VITE_BACKEND_URL}/api/send`,
   payload
 );
@@ -254,7 +254,24 @@ const SendForm = () => {
 
   {/* INFO ICON */}
   <div className="relative group">
-    <FaInfoCircle className="text-gray-400 cursor-pointer" />
+  
+<motion.div
+  animate={{
+    scale: [1, 1.2, 1],
+    textShadow: [
+      "0px 0px 0px rgba(74, 222, 128, 0)",
+      "0px 0px 20px rgba(74, 222, 128, 0.8)",
+      "0px 0px 0px rgba(74, 222, 128, 0)",
+    ],
+  }}
+  transition={{
+    duration: 2,
+    repeat: Infinity,
+    ease: "easeInOut",
+  }}
+>
+  <FaInfoCircle className="text-green-400 cursor-pointer" />
+</motion.div>
 
     {/* TOOLTIP */}
     <div className="absolute right-0 top-8 w-72 text-sm bg-black/90 text-white p-3 rounded-xl opacity-0 group-hover:opacity-100 transition pointer-events-none z-20">
