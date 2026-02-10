@@ -3,8 +3,11 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { motion } from "framer-motion";
 import * as THREE from "three";
+
+
 import {
   FaEnvelope,
+  FaInfoCircle ,
   FaWhatsapp,
   FaPaperPlane,
   FaTimes,
@@ -97,26 +100,25 @@ const toBase64 = (file) =>
 const SendForm = () => {
   const [channel, setChannel] = useState("email");
   const [content, setContent] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState(""); 
+  const [emailUser, setEmailUser] = useState(""); // ✅ username only
+  const [phone, setPhone] = useState("");
   const [title, setTitle] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
-const [passkey, setPasskey] = useState("");
-
+  const [passkey, setPasskey] = useState("");
 
   const removeImage = (i) =>
     setImages((prev) => prev.filter((_, idx) => idx !== i));
-  const handleUnlock = () => {
-  if (passkey === "4176") {
-    setIsUnlocked(true);
-    toast.success("Access granted 🔓");
-  } else {
-    toast.error("Wrong passkey ❌");
-  }
-};
 
+  const handleUnlock = () => {
+    if (passkey === "4176") {
+      setIsUnlocked(true);
+      toast.success("Access granted 🔓");
+    } else {
+      toast.error("Wrong passkey ❌");
+    }
+  };
 
   const handlePaste = (e) => {
     const items = e.clipboardData?.items;
@@ -131,8 +133,8 @@ const [passkey, setPasskey] = useState("");
 
   const handleSend = async () => {
     if (!content.trim()) return toast.error("Code content required");
-    if (channel === "email" && !email.trim())
-      return toast.error("Email required");
+    if (channel === "email" && !emailUser.trim())
+      return toast.error("Email username required");
     if (channel === "whatsapp" && phone.length !== 10)
       return toast.error("Enter a valid 10-digit WhatsApp number");
 
@@ -146,68 +148,66 @@ const [passkey, setPasskey] = useState("");
         content,
         title,
         images: base64Images,
-        email,
-        phone: channel === "whatsapp" ? `+91${phone}` : phone, // 🔒 FIXED
+        email: channel === "email" ? `${emailUser}@gmail.com` : "",
+        phone: channel === "whatsapp" ? `+91${phone}` : phone,
       };
 
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/send`,
-        payload
-      );
+  `${import.meta.env.VITE_BACKEND_URL}/api/send`,
+  payload
+);
+
+
 
       toast.success(res.data.message || "Sent 🚀");
       setContent("");
-      setEmail("");
+      setEmailUser("");
       setPhone("");
       setTitle("");
       setImages([]);
-    }  catch (err) {
-  toast.error(
-    "Today’s WhatsApp message limit is exhausted.Try Using Mail"
-  );
-}
-finally {
+    } catch (err) {
+      toast.error("Today’s WhatsApp message limit is exhausted.Try Using Mail");
+    } finally {
       setLoading(false);
     }
   };
 
   if (!isUnlocked) {
-  return (
-    <div className="min-h-screen flex items-center justify-center px-4 text-white">
-      {/* ✅ SAME BACKGROUND */}
-      <StarBackground />
-      <ToastContainer theme="dark" />
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 text-white">
+        <StarBackground />
+        <ToastContainer theme="dark" />
 
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 w-full max-w-sm shadow-2xl z-10"
-      >
-        <h2 className="text-2xl font-bold text-center mb-4">
-          Enter Passkey 🔐
-        </h2>
-
-        <input
-          type="password"
-          maxLength={4}
-          value={passkey}
-          onChange={(e) =>
-            setPasskey(e.target.value.replace(/\D/g, ""))
-          }
-          placeholder="4-digit passkey"
-          className="w-full text-center tracking-widest text-xl p-3 rounded-xl bg-black/40 mb-4"
-        />
-
-        <button
-          onClick={handleUnlock}
-          className="w-full py-3 rounded-xl bg-purple-600 font-bold cursor-pointer"
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 w-full max-w-sm shadow-2xl z-10"
         >
-          Unlock
-        </button>
-      </motion.div>
-    </div>
-  );
-}
+          <h2 className="text-2xl font-bold text-center mb-4">
+            Enter Passkey 🔐
+          </h2>
+
+          <input
+            type="password"
+            maxLength={4}
+            value={passkey}
+            onChange={(e) =>
+              setPasskey(e.target.value.replace(/\D/g, ""))
+            }
+            placeholder="4-digit passkey"
+            className="w-full text-center tracking-widest text-xl p-3 rounded-xl bg-black/40 mb-4"
+          />
+
+          <button
+            onClick={handleUnlock}
+            className="w-full py-3 rounded-xl bg-purple-600 font-bold cursor-pointer"
+          >
+            Unlock
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -240,16 +240,36 @@ finally {
             <FaEnvelope className="inline mr-2" /> Email
           </button>
 
-          <button
-            onClick={() => setChannel("whatsapp")}
-            className={`flex-1 py-3 rounded-xl  cursor-pointer ${
-              channel === "whatsapp"
-                ? "bg-green-600"
-                : "bg-black/30 text-gray-400"
-            }`}
-          >
-            <FaWhatsapp className="inline mr-2" /> WhatsApp
-          </button>
+         <div className="flex-1 flex items-center gap-2">
+  <button
+    onClick={() => setChannel("whatsapp")}
+    className={`flex-1 py-3 rounded-xl cursor-pointer ${
+      channel === "whatsapp"
+        ? "bg-green-600"
+        : "bg-black/30 text-gray-400"
+    }`}
+  >
+    <FaWhatsapp className="inline mr-2" /> WhatsApp
+  </button>
+
+  {/* INFO ICON */}
+  <div className="relative group">
+    <FaInfoCircle className="text-gray-400 cursor-pointer" />
+
+    {/* TOOLTIP */}
+    <div className="absolute right-0 top-8 w-72 text-sm bg-black/90 text-white p-3 rounded-xl opacity-0 group-hover:opacity-100 transition pointer-events-none z-20">
+      To receive WhatsApp messages, first send this message from your WhatsApp:
+      <br />
+      <span className="block mt-2 text-green-400 font-mono">
+        join note-rather
+      </span>
+      <span className="block mt-1 text-gray-300">
+        to <b>+1 415 523 8886</b>
+      </span>
+    </div>
+  </div>
+</div>
+
         </div>
 
         <input
@@ -269,20 +289,24 @@ finally {
 
         {/* EMAIL / WHATSAPP */}
         {channel === "email" ? (
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Recipient Email"
-            className="w-full mb-3 p-3 rounded-xl bg-black/30"
-          />
+          <div className="flex mb-3">
+            <input
+              value={emailUser}
+              onChange={(e) =>
+                setEmailUser(e.target.value.replace(/\s/g, ""))
+              }
+              placeholder="Email username"
+              className="flex-1 p-3 rounded-l-xl bg-black/30"
+            />
+            <span className="px-4 py-3 bg-black/50 border border-white/10 rounded-r-xl text-gray-300 select-none">
+              @gmail.com
+            </span>
+          </div>
         ) : (
           <div className="flex mb-3">
-            {/* LOCKED +91 */}
             <span className="px-4 py-3 bg-black/50 border border-white/10 rounded-l-xl text-gray-300 select-none">
               +91
             </span>
-
-            {/* USER TYPES ONLY DIGITS */}
             <input
               type="text"
               value={phone}

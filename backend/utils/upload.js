@@ -1,30 +1,20 @@
-import multer from "multer";
-import path from "path";
+import cloudinary from "../config/cloudinary.js";
 
-// Storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    const uniqueName =
-      Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueName + path.extname(file.originalname));
-  },
-});
+export const uploadBase64Images = async (base64Images = []) => {
+  if (!Array.isArray(base64Images) || base64Images.length === 0) return [];
 
-// Allow only images
-const fileFilter = (req, file, cb) => {
-  const allowed = ["image/png", "image/jpeg", "image/jpg"];
-  if (allowed.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only images allowed"), false);
+  const urls = [];
+
+  for (const base64 of base64Images) {
+    if (!base64) continue;
+
+    const res = await cloudinary.uploader.upload(base64, {
+      folder: "codesender/whatsapp",
+      resource_type: "image",
+    });
+
+    urls.push(res.secure_url);
   }
-};
 
-export const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB per image
-});
+  return urls;
+};

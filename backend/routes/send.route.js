@@ -2,6 +2,7 @@ import express from "express";
 import { sendWhatsApp } from "../services/whatsapp.service.js";
 import { sendEmail } from "../services/email.service.js";
 import { validateRequest } from "../utils/validate.js";
+import { uploadBase64Images } from "../utils/upload.js";
 
 const router = express.Router();
 
@@ -55,24 +56,24 @@ router.post("/", async (req, res) => {
     }
 
     // ================= WHATSAPP =================
-    if (channel === "whatsapp") {
-      console.log("📲 WhatsApp flow started");
+   // ================= WHATSAPP =================
+if (channel === "whatsapp") {
+  if (!phone) {
+    return res.status(400).json({ message: "WhatsApp number required" });
+  }
 
-      if (!phone) {
-        console.log("❌ WhatsApp phone missing");
-        return res.status(400).json({ message: "WhatsApp number required" });
-      }
+  let mediaUrls = [];
 
-      console.log("📞 WhatsApp target:", phone);
+  if (Array.isArray(images) && images.length > 0) {
+    mediaUrls = await uploadBase64Images(images);
+  }
 
-      await sendWhatsApp(phone, title, content);
+  await sendWhatsApp(phone, title, content, mediaUrls);
 
-      console.log("✅ WhatsApp sent successfully");
-
-      return res.json({
-        message: "WhatsApp code sent as text!",
-      });
-    }
+  return res.json({
+    message: "WhatsApp message sent successfully!",
+  });
+}
 
     console.log("❌ Invalid channel:", channel);
     return res.status(400).json({ message: "Invalid channel" });
