@@ -147,6 +147,75 @@ const SendForm = () => {
     }
   };
 
+
+
+
+const showWhatsAppInfo = () => {
+  toast(
+    <div className="relative overflow-hidden rounded-2xl">
+
+      {/* Soft Premium Gradient Border */}
+      <div className="absolute inset-0 rounded-2xl p-[1px] bg-gradient-to-br from-emerald-400/40 via-green-500/30 to-teal-400/40">
+        <div className="h-full w-full rounded-2xl bg-black/80 backdrop-blur-xl" />
+      </div>
+
+      {/* Subtle Moving Glow */}
+      <div className="absolute -inset-10 bg-gradient-to-r from-transparent via-emerald-400/10 to-transparent rotate-12 animate-[pulse_4s_ease-in-out_infinite]" />
+
+      {/* Content */}
+      <div className="relative z-10 p-5">
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-3 w-3 rounded-full bg-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)]" />
+          <p className="text-sm font-semibold tracking-wide text-white">
+            WhatsApp Activation Required
+          </p>
+        </div>
+
+        {/* Instruction */}
+        <p className="text-xs text-gray-400 leading-relaxed">
+          To enable WhatsApp delivery, send the following message from your WhatsApp:
+        </p>
+
+        {/* Premium Command Box */}
+        <div className="mt-4 rounded-xl border border-green-400/30 bg-black/60 backdrop-blur-md px-4 py-3">
+          <p className="text-green-400 font-mono text-sm tracking-widest">
+            join note-rather
+          </p>
+        </div>
+
+        {/* Number */}
+        <p className="mt-3 text-xs text-gray-500">
+          Send to
+          <span className="ml-2 text-green-300 font-medium tracking-wide">
+            +1 415 523 8886
+          </span>
+        </p>
+
+      </div>
+    </div>,
+    {
+      autoClose: 8000,
+      position: "top-center",
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "dark",
+      style: {
+        background: "transparent",
+        boxShadow: "none",
+      },
+    }
+  );
+};
+
+
+
+
+
+
   const handleSend = async () => {
     if (!content.trim()) return toast.error("Code content required");
     if (channel === "email" && !emailUser.trim())
@@ -168,10 +237,11 @@ const SendForm = () => {
         phone: channel === "whatsapp" ? `+91${phone}` : phone,
       };
 
-      const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/send`,
-        payload
-      );
+     const res = await axios.post(
+  "http://localhost:5000/api/send",
+  payload
+);
+
 
       toast.success(res.data.message || "Sent 🚀");
       setContent("");
@@ -352,7 +422,10 @@ if (!isUnlocked) {
 
          <div className="flex-1 flex items-center gap-2">
   <button
-    onClick={() => setChannel("whatsapp")}
+    onClick={() => {
+    setChannel("whatsapp");
+    showWhatsAppInfo();
+  }}
     className={`flex-1 py-3 rounded-xl cursor-pointer ${
       channel === "whatsapp"
         ? "bg-green-600"
