@@ -1,15 +1,17 @@
 import nodemailer from "nodemailer";
 
-export const sendEmail = async (to, content, images = [], title) => {
+export const sendEmail = async (to, content, files = [], title) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
-  // ✅ Always attach code
+
   const attachments = [
     {
       filename: "code.txt",
@@ -17,24 +19,24 @@ export const sendEmail = async (to, content, images = [], title) => {
     },
   ];
 
-  // ✅ Attach images ONLY if present
-  if (Array.isArray(images) && images.length > 0) {
-    images.forEach((base64, index) => {
-      if (!base64) return;
+  // Attach uploaded files (PDF, DOCX, Images)
+  if (Array.isArray(files) && files.length > 0) {
+    files.forEach((file) => {
+      if (!file?.data) return;
 
-      const matches = base64.match(/^data:(.+);base64,(.+)$/);
+      const matches = file.data.match(/^data:(.+);base64,(.+)$/);
       if (!matches) return;
 
       attachments.push({
-        filename: `image_${index + 1}.png`,
+        filename: file.name,
         content: matches[2],
         encoding: "base64",
-        contentType: matches[1],
+        contentType: file.type,
       });
     });
   }
 
-   const htmlTemplate = `
+  const htmlTemplate = `
   <!DOCTYPE html>
   <html>
     <head>
@@ -45,9 +47,8 @@ export const sendEmail = async (to, content, images = [], title) => {
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td align="center" style="padding:40px 15px;">
-            <table width="100%" max-width="600px" style="background:#020617;border-radius:14px;padding:30px;color:#e5e7eb;">
+            <table width="100%" style="max-width:600px;background:#020617;border-radius:14px;padding:30px;color:#e5e7eb;">
               
-              <!-- Header -->
               <tr>
                 <td style="text-align:center;">
                   <h1 style="color:#38bdf8;margin-bottom:8px;">🚀 CodeSender</h1>
@@ -57,14 +58,12 @@ export const sendEmail = async (to, content, images = [], title) => {
                 </td>
               </tr>
 
-              <!-- Divider -->
               <tr>
                 <td style="padding:20px 0;">
                   <hr style="border:none;border-top:1px solid #1e293b;" />
                 </td>
               </tr>
 
-              <!-- Content -->
               <tr>
                 <td>
                   <h2 style="color:#f8fafc;">
@@ -74,8 +73,8 @@ export const sendEmail = async (to, content, images = [], title) => {
                     Hi 👋,<br/><br/>
                     Your requested code has been securely attached as a file.
                     ${
-                      images.length > 0
-                        ? "Related images are also included for reference."
+                      files.length > 0
+                        ? "Additional files are also attached."
                         : ""
                     }
                   </p>
@@ -85,8 +84,8 @@ export const sendEmail = async (to, content, images = [], title) => {
                       📎 <strong>Attachments:</strong><br/>
                       • code.txt<br/>
                       ${
-                        images.length > 0
-                          ? `• ${images.length} image(s)`
+                        files.length > 0
+                          ? `• ${files.length} file(s)`
                           : ""
                       }
                     </p>
@@ -98,7 +97,6 @@ export const sendEmail = async (to, content, images = [], title) => {
                 </td>
               </tr>
 
-              <!-- Footer -->
               <tr>
                 <td style="padding-top:30px;text-align:center;">
                   <p style="color:#64748b;font-size:13px;">
@@ -116,15 +114,12 @@ export const sendEmail = async (to, content, images = [], title) => {
   </html>
   `;
 
-
-
   await transporter.sendMail({
     from: `"CodeSender" <${process.env.EMAIL_USER}>`,
     to,
     subject: title?.trim() || "Your Code File",
-    text: "Your code is attached as a file.",
-     html: htmlTemplate,
-
+    text: "Your code is attached.",
+    html: htmlTemplate,
     attachments,
   });
 };

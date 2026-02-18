@@ -7,14 +7,14 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { channel, content, email, phone, title, images } = req.body;
+    const { channel, content, email, phone, title, files, images } = req.body;
 
     // EMAIL
     if (channel === "email") {
       const error = validateRequest({ content, email });
       if (error) return res.status(400).json({ message: error });
 
-      await sendEmail(email, content, images || [], title);
+      await sendEmail(email, content, files || [], title);
       return res.json({ message: "Email sent successfully!" });
     }
 
