@@ -520,19 +520,38 @@ if (!isUnlocked) {
 
         {/* EMAIL / WHATSAPP */}
         {channel === "email" ? (
-          <div className="flex mb-3">
-            <input
-              value={emailUser}
-              onChange={(e) =>
-                setEmailUser(e.target.value.replace(/\s/g, ""))
-              }
-              placeholder="Email username"
-              className="flex-1 p-3 rounded-l-xl bg-black/30"
-            />
-            <span className="px-4 py-3 bg-black/50 border border-white/10 rounded-r-xl text-gray-300 select-none">
-              @gmail.com
-            </span>
-          </div>
+         <div className="mb-3">
+  <div className="flex">
+    <input
+      value={emailUser}
+      onChange={(e) =>
+        setEmailUser(
+          e.target.value
+            .replace(/\s/g, "")
+            .replace(/@.*/, "") // remove anything after @
+        )
+      }
+      onFocus={() =>
+        toast.info(
+          "Only enter your Gmail username. @gmail.com is added automatically.",
+          {
+            position: "top-center",
+            autoClose: 3000,
+            theme: "dark",
+          }
+        )
+      }
+      placeholder="Enter Gmail username"
+      className="flex-1 p-3 rounded-l-xl bg-black/30 outline-none"
+    />
+    <span className="px-4 py-3 bg-black/50 border border-white/10 rounded-r-xl text-gray-300 select-none">
+      @gmail.com
+    </span>
+  </div>
+
+
+</div>
+
         ) : (
           <div className="flex mb-3">
             <span className="px-4 py-3 bg-black/50 border border-white/10 rounded-l-xl text-gray-300 select-none">
