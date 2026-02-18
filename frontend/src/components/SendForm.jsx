@@ -88,9 +88,15 @@ const toBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
+    reader.onload = () =>
+      resolve({
+        name: file.name,
+        type: file.type,
+        data: reader.result,
+      });
     reader.onerror = reject;
   });
+
 
 /* ================= MAIN COMPONENT ================= */
 const SendForm = () => {
@@ -217,45 +223,69 @@ const showWhatsAppInfo = () => {
 
 
   const handleSend = async () => {
-    if (!content.trim()) return toast.error("Code content required");
-    if (channel === "email" && !emailUser.trim())
-      return toast.error("Email username required");
-    if (channel === "whatsapp" && phone.length !== 10)
-      return toast.error("Enter a valid 10-digit WhatsApp number");
+  if (!content.trim()) return toast.error("Code content required");
+  if (channel === "email" && !emailUser.trim())
+    return toast.error("Email username required");
+  if (channel === "whatsapp" && phone.length !== 10)
+    return toast.error("Enter a valid 10-digit WhatsApp number");
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const base64Images = await Promise.all(images.map(toBase64));
+    const base64Files = await Promise.all(images.map(toBase64));
 
-      const payload = {
-        channel,
-        content,
-        title,
-        images: base64Images,
-        email: channel === "email" ? `${emailUser}@gmail.com` : "",
-        phone: channel === "whatsapp" ? `+91${phone}` : phone,
-      };
+    // 🚫 If WhatsApp and non-image selected → block
+    if (channel === "whatsapp") {
+      const nonImages = base64Files.filter(
+        (file) => !file.type.startsWith("image/")
+      );
 
-  const res = await axios.post(
+      if (nonImages.length > 0) {
+        toast.error(
+          "WhatsApp can only send text, code or images. Documents are not supported."
+        );
+        setLoading(false);
+        return;
+      }
+    }
+
+    const payload =
+      channel === "email"
+        ? {
+            channel,
+            content,
+            title,
+            files: base64Files,
+            email: `${emailUser}@gmail.com`,
+          }
+        : {
+            channel,
+            content,
+            title,
+            images: base64Files, // Only images
+            phone: `+91${phone}`,
+          };
+
+   const res = await axios.post(
   `${import.meta.env.VITE_BACKEND_URL}/api/send`,
   payload
 );
 
 
+    toast.success(res.data.message || "Sent 🚀");
 
-      toast.success(res.data.message || "Sent 🚀");
-      setContent("");
-      setEmailUser("");
-      setPhone("");
-      setTitle("");
-      setImages([]);
-    } catch {
-      toast.error("Today’s WhatsApp limit exhausted. Try Email.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setContent("");
+    setEmailUser("");
+    setPhone("");
+    setTitle("");
+    setImages([]);
+  } catch (err) {
+    toast.error("WhatsApp limit exhausted or error occurred.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   /* ================= LOCK SCREEN ================= */
 /* ================= LOCK SCREEN ================= */
@@ -526,7 +556,8 @@ if (!isUnlocked) {
           <input
             type="file"
             multiple
-            accept="image/*"
+           accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+
             className="hidden"
             onChange={(e) =>
               setImages((p) => [...p, ...Array.from(e.target.files)])
