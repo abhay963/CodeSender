@@ -129,7 +129,7 @@ const fetchCodes = async () => {
   const snapshot = await getDocs(q);
 
   const now = Date.now();
-  const tenMinutes = 10 * 60 * 1000;
+  const threeHours = 3 * 60 * 60 * 1000; // ✅ 3 hours
 
   const validCodes = [];
 
@@ -140,7 +140,7 @@ const fetchCodes = async () => {
 
     const createdTime = data.createdAt.toDate().getTime();
 
-    if (now - createdTime > tenMinutes) {
+    if (now - createdTime > threeHours) { // updated here
       await deleteDoc(doc(db, "codes", docSnap.id));
     } else {
       validCodes.push({ id: docSnap.id, ...data });
@@ -149,7 +149,6 @@ const fetchCodes = async () => {
 
   setSavedCodes(validCodes);
 };
-
 
 const saveNewCodeDirectly = async () => {
   if (!newSavedContent.trim()) {
