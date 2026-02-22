@@ -687,7 +687,7 @@ if (!isUnlocked) {
 <button
   onClick={async () => {
     toast.info(
-      "📌 This is your temporary cloud storage. Save codes here and access them from any device. Codes auto‑delete after 10 minutes.",
+      "📌 This is your temporary cloud storage. Save codes here and access them from any device. Codes auto‑delete after 3 hour.",
       {
         position: "top-center",
         autoClose: 4000,
