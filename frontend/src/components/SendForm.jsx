@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { FaCopy, FaTrash, FaCloudUploadAlt } from "react-icons/fa";
+import { FaCopy,   FaGem,FaTrash, FaCloudUploadAlt } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
@@ -497,9 +497,37 @@ if (!isUnlocked) {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-xl backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl"
       >
-        <h1 className="text-4xl font-extrabold text-center mb-6">
-          Code<span className="text-purple-400">Sender</span>
-        </h1>
+      {/* 🔥 Premium Animated Header */}
+<div className="text-center mb-10">
+  <motion.div
+    initial={{ scale: 0, rotate: 180 }}
+    animate={{ scale: 1, rotate: 0 }}
+    transition={{ type: "spring", stiffness: 200 }}
+    className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 
+               rounded-3xl flex items-center justify-center 
+               mx-auto mb-5 shadow-2xl shadow-purple-500/50"
+  >
+    <FaGem className="text-2xl text-white drop-shadow-lg" />
+  </motion.div>
+
+  <motion.h1
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.2 }}
+    className="text-4xl md:text-5xl font-black 
+               bg-gradient-to-r from-white via-purple-100 to-pink-100 
+               bg-clip-text text-transparent tracking-tight"
+  >
+    Code
+    <span className="text-transparent bg-gradient-to-r 
+                     from-purple-400 to-pink-400 bg-clip-text">
+      Sender
+    </span>
+    <span className="text-sm font-light block text-gray-400 mt-2 tracking-widest">
+      PRO
+    </span>
+  </motion.h1>
+</div>
 
         {/* CHANNEL */}
         <div className="flex gap-3 mb-4">
@@ -713,118 +741,129 @@ if (!isUnlocked) {
 
 {showSaved && (
   <div
-    className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50"
+    className="fixed inset-0 bg-black/70 backdrop-blur-2xl flex items-center justify-center z-50 p-4"
     onClick={() => setShowSaved(false)}
   >
-    <div
-      className="relative w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-3xl 
-                 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 
-                 border border-white/10 shadow-2xl p-8 animate-fadeIn"
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 120 }}
+      className="w-full max-w-4xl max-h-[90vh] overflow-y-auto 
+                 bg-gradient-to-br from-gray-900/95 via-black/50 to-gray-900/95 
+                 border border-white/10 rounded-3xl shadow-2xl shadow-purple-500/20"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-          ☁ Saved Codes
-        </h2>
+      <div className="sticky top-0 p-8 border-b border-white/10 bg-black/50 backdrop-blur-xl rounded-t-3xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-black bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
+              ☁️ Cloud Vault
+            </h2>
+            <p className="text-gray-400 mt-1">
+              Your codes • Auto-delete in 3h
+            </p>
+          </div>
 
-        <button
-          onClick={() => setShowSaved(false)}
-          className="text-red-400 hover:text-red-500 transition cursor-pointer"
-        >
-          <FaTimes size={18} />
-        </button>
+          <button
+            onClick={() => setShowSaved(false)}
+            className="p-3 hover:bg-white/10 rounded-2xl transition"
+          >
+            <FaTimes className="text-2xl" />
+          </button>
+        </div>
       </div>
 
-      {/* Add New Code Section */}
-      <div className="mb-10 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-lg">
-        <h3 className="text-lg font-semibold mb-4 text-purple-300">
-          ✨ Add New Code
+      {/* Add New Code */}
+      <div className="p-8 border-b border-white/5">
+        <h3 className="text-xl font-bold mb-6 text-purple-300">
+          ⚡ Quick Save
         </h3>
 
-        <input
-          value={newSavedTitle}
-          onChange={(e) => setNewSavedTitle(e.target.value)}
-          placeholder="Title (optional)"
-          className="w-full mb-4 p-3 rounded-xl bg-black/40 border border-white/10 
-                     focus:border-purple-400 outline-none transition"
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <input
+            value={newSavedTitle}
+            onChange={(e) => setNewSavedTitle(e.target.value)}
+            placeholder="Title (optional)"
+            className="p-4 rounded-2xl bg-black/30 border border-white/20 focus:border-purple-400 outline-none"
+          />
 
-        <textarea
-          rows="4"
-          value={newSavedContent}
-          onChange={(e) => setNewSavedContent(e.target.value)}
-          placeholder="Write your code here..."
-          className="w-full mb-4 p-3 rounded-xl bg-black/40 border border-white/10 
-                     font-mono focus:border-purple-400 outline-none transition"
-        />
+          <textarea
+            rows="3"
+            value={newSavedContent}
+            onChange={(e) => setNewSavedContent(e.target.value)}
+            placeholder="Your code..."
+            className="lg:col-span-2 p-4 rounded-2xl bg-black/30 border border-white/20 focus:border-purple-400 outline-none font-mono resize-none"
+          />
 
-        <button
-          onClick={saveNewCodeDirectly}
-          className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 
-                     hover:scale-105 transition transform shadow-lg cursor-pointer"
-        >
-          Save Code 🚀
-        </button>
-      </div>
-
-      {/* Empty State */}
-      {savedCodes.length === 0 && (
-        <div className="text-center text-gray-400 py-10">
-          No recent codes saved.
-        </div>
-      )}
-
-      {/* Saved Codes List */}
-      <div className="space-y-6">
-        {savedCodes.map((item) => (
-          <div
-            key={item.id}
-            className="relative p-6 rounded-2xl bg-white/5 border border-white/10 
-                       backdrop-blur-md hover:border-purple-400 transition duration-300"
+          <button
+            onClick={saveNewCodeDirectly}
+            className="lg:col-span-3 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 font-bold hover:scale-105 transition"
           >
-            {/* Title + Actions */}
-            <div className="flex justify-between items-center mb-4">
-              <p className="text-sm font-semibold text-purple-300">
-                {item.title || "Untitled"}
-              </p>
-
-              <div className="flex gap-4">
-                {/* Copy */}
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(item.content);
-                    toast.success("Copied to clipboard ✅");
-                  }}
-                  className="text-gray-400 hover:text-green-400 transition cursor-pointer"
-                >
-                  <FaCopy size={16} />
-                </button>
-
-                {/* Delete */}
-                <button
-                  onClick={async () => {
-                    await deleteDoc(doc(db, "codes", item.id));
-                    fetchCodes();
-                  }}
-                  className="text-gray-400 hover:text-red-400 transition cursor-pointer"
-                >
-                  <FaTrash size={16} />
-                </button>
-              </div>
-            </div>
-
-            {/* Code Block */}
-            <pre className="whitespace-pre-wrap font-mono text-sm bg-black/40 p-4 rounded-xl overflow-x-auto">
-              {item.content}
-            </pre>
-          </div>
-        ))}
+            Save Code ✨
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* Codes List */}
+      <div className="p-8 space-y-6">
+        {savedCodes.length === 0 ? (
+          <div className="text-center py-20">
+            <FaCloudUploadAlt className="w-20 h-20 text-gray-600 mx-auto mb-6 opacity-50" />
+            <p className="text-2xl text-gray-500 font-light">
+              No codes in cloud yet
+            </p>
+          </div>
+        ) : (
+          savedCodes.map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative p-8 rounded-3xl bg-gradient-to-r from-white/5 to-black/30 
+                         border border-white/10 hover:border-purple-400 
+                         hover:shadow-2xl hover:shadow-purple-500/30 
+                         transition-all backdrop-blur-xl overflow-hidden"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <h4 className="text-xl font-bold text-white pr-12">
+                  {item.title || "Untitled Code"}
+                </h4>
+
+                <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-all">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(item.content);
+                      toast.success("Copied! ✅");
+                    }}
+                    className="p-3 hover:bg-green-500/20 rounded-2xl transition"
+                  >
+                    <FaCopy className="text-green-400" />
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      await deleteDoc(doc(db, "codes", item.id));
+                      fetchCodes();
+                      toast.success("Deleted from cloud");
+                    }}
+                    className="p-3 hover:bg-red-500/20 rounded-2xl transition"
+                  >
+                    <FaTrash className="text-red-400" />
+                  </button>
+                </div>
+              </div>
+
+              <pre className="font-mono text-sm leading-relaxed bg-black/40 p-6 rounded-2xl border border-white/10 overflow-x-auto max-h-64 overflow-y-auto">
+                {item.content}
+              </pre>
+            </motion.div>
+          ))
+        )}
+      </div>
+    </motion.div>
   </div>
 )}
-
 
     </div>
     
