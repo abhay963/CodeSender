@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { FaCopy, FaTrash, FaCloudUploadAlt } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
-
+import { db } from "../firebase";
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, deleteDoc, doc } from "firebase/firestore";
 import {
   FaEnvelope,
   FaInfoCircle,
@@ -116,6 +118,58 @@ const SendForm = () => {
   const [title, setTitle] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [savedCodes, setSavedCodes] = useState([]);
+const [showSaved, setShowSaved] = useState(false);
+const [newSavedTitle, setNewSavedTitle] = useState("");
+const [newSavedContent, setNewSavedContent] = useState("");
+const textareaRef = useRef(null);
+
+const fetchCodes = async () => {
+  const q = query(collection(db, "codes"), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+
+  const now = Date.now();
+  const tenMinutes = 10 * 60 * 1000;
+
+  const validCodes = [];
+
+  for (const docSnap of snapshot.docs) {
+    const data = docSnap.data();
+
+    if (!data.createdAt) continue;
+
+    const createdTime = data.createdAt.toDate().getTime();
+
+    if (now - createdTime > tenMinutes) {
+      await deleteDoc(doc(db, "codes", docSnap.id));
+    } else {
+      validCodes.push({ id: docSnap.id, ...data });
+    }
+  }
+
+  setSavedCodes(validCodes);
+};
+
+
+const saveNewCodeDirectly = async () => {
+  if (!newSavedContent.trim()) {
+    toast.error("Code cannot be empty");
+    return;
+  }
+
+  await addDoc(collection(db, "codes"), {
+    title: newSavedTitle,
+    content: newSavedContent,
+    createdAt: serverTimestamp(),
+  });
+
+  setNewSavedTitle("");
+  setNewSavedContent("");
+
+  await fetchCodes();
+  toast.success("Code saved ✅");
+};
+
 
   const removeImage = (i) =>
     setImages((prev) => prev.filter((_, idx) => idx !== i));
@@ -272,7 +326,16 @@ const showWhatsAppInfo = () => {
 );
 
 
+
+
     toast.success(res.data.message || "Sent 🚀");
+    // 🔥 Save to Firebase
+await addDoc(collection(db, "codes"), {
+  title,
+  content,
+  channel,
+  createdAt: serverTimestamp()
+});
 
     setContent("");
     setEmailUser("");
@@ -421,6 +484,7 @@ if (!isUnlocked) {
 
 
   return (
+    
     <div
       className="min-h-screen flex items-center justify-center px-4 text-white"
       onPaste={handlePaste}
@@ -553,6 +617,7 @@ if (!isUnlocked) {
 </div>
 
         ) : (
+          
           <div className="flex mb-3">
             <span className="px-4 py-3 bg-black/50 border border-white/10 rounded-l-xl text-gray-300 select-none">
               +91
@@ -616,8 +681,154 @@ if (!isUnlocked) {
           <FaPaperPlane className="inline mr-2" />
           {loading ? "Sending..." : "Send"}
         </motion.button>
+
+    
+
+
+<button
+  onClick={async () => {
+    toast.info(
+      "📌 This is your temporary cloud storage. Save codes here and access them from any device. Codes auto‑delete after 10 minutes.",
+      {
+        position: "top-center",
+        autoClose: 4000,
+        theme: "dark",
+      }
+    );
+
+    await fetchCodes();
+    setShowSaved(true);
+  }}
+  className="mt-7 w-full flex items-center justify-center gap-2 py-3 rounded-xl
+             bg-gradient-to-r from-indigo-600 to-purple-600
+             text-white font-medium shadow-md
+             hover:from-indigo-500 hover:to-purple-500
+             hover:shadow-lg hover:scale-105
+             transition-all duration-200 cursor-pointer"
+>
+  <FaCloudUploadAlt className="text-lg" />
+  Save Your Code
+</button>
       </motion.div>
+
+
+{showSaved && (
+  <div
+    className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50"
+    onClick={() => setShowSaved(false)}
+  >
+    <div
+      className="relative w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-3xl 
+                 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 
+                 border border-white/10 shadow-2xl p-8 animate-fadeIn"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
+          ☁ Saved Codes
+        </h2>
+
+        <button
+          onClick={() => setShowSaved(false)}
+          className="text-red-400 hover:text-red-500 transition cursor-pointer"
+        >
+          <FaTimes size={18} />
+        </button>
+      </div>
+
+      {/* Add New Code Section */}
+      <div className="mb-10 p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-lg">
+        <h3 className="text-lg font-semibold mb-4 text-purple-300">
+          ✨ Add New Code
+        </h3>
+
+        <input
+          value={newSavedTitle}
+          onChange={(e) => setNewSavedTitle(e.target.value)}
+          placeholder="Title (optional)"
+          className="w-full mb-4 p-3 rounded-xl bg-black/40 border border-white/10 
+                     focus:border-purple-400 outline-none transition"
+        />
+
+        <textarea
+          rows="4"
+          value={newSavedContent}
+          onChange={(e) => setNewSavedContent(e.target.value)}
+          placeholder="Write your code here..."
+          className="w-full mb-4 p-3 rounded-xl bg-black/40 border border-white/10 
+                     font-mono focus:border-purple-400 outline-none transition"
+        />
+
+        <button
+          onClick={saveNewCodeDirectly}
+          className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 
+                     hover:scale-105 transition transform shadow-lg cursor-pointer"
+        >
+          Save Code 🚀
+        </button>
+      </div>
+
+      {/* Empty State */}
+      {savedCodes.length === 0 && (
+        <div className="text-center text-gray-400 py-10">
+          No recent codes saved.
+        </div>
+      )}
+
+      {/* Saved Codes List */}
+      <div className="space-y-6">
+        {savedCodes.map((item) => (
+          <div
+            key={item.id}
+            className="relative p-6 rounded-2xl bg-white/5 border border-white/10 
+                       backdrop-blur-md hover:border-purple-400 transition duration-300"
+          >
+            {/* Title + Actions */}
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-sm font-semibold text-purple-300">
+                {item.title || "Untitled"}
+              </p>
+
+              <div className="flex gap-4">
+                {/* Copy */}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(item.content);
+                    toast.success("Copied to clipboard ✅");
+                  }}
+                  className="text-gray-400 hover:text-green-400 transition cursor-pointer"
+                >
+                  <FaCopy size={16} />
+                </button>
+
+                {/* Delete */}
+                <button
+                  onClick={async () => {
+                    await deleteDoc(doc(db, "codes", item.id));
+                    fetchCodes();
+                  }}
+                  className="text-gray-400 hover:text-red-400 transition cursor-pointer"
+                >
+                  <FaTrash size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Code Block */}
+            <pre className="whitespace-pre-wrap font-mono text-sm bg-black/40 p-4 rounded-xl overflow-x-auto">
+              {item.content}
+            </pre>
+          </div>
+        ))}
+      </div>
     </div>
+  </div>
+)}
+
+
+    </div>
+    
   );
 };
 
