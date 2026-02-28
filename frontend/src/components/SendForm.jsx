@@ -128,26 +128,12 @@ const fetchCodes = async () => {
   const q = query(collection(db, "codes"), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
 
-  const now = Date.now();
-  const threeHours = 3 * 60 * 60 * 1000; // ✅ 3 hours
+  const allCodes = snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data(),
+  }));
 
-  const validCodes = [];
-
-  for (const docSnap of snapshot.docs) {
-    const data = docSnap.data();
-
-    if (!data.createdAt) continue;
-
-    const createdTime = data.createdAt.toDate().getTime();
-
-    if (now - createdTime > threeHours) { // updated here
-      await deleteDoc(doc(db, "codes", docSnap.id));
-    } else {
-      validCodes.push({ id: docSnap.id, ...data });
-    }
-  }
-
-  setSavedCodes(validCodes);
+  setSavedCodes(allCodes);
 };
 
 const saveNewCodeDirectly = async () => {
@@ -714,14 +700,7 @@ if (!isUnlocked) {
 
 <button
   onClick={async () => {
-    toast.info(
-      "📌 This is your temporary cloud storage. Save codes here and access them from any device. Codes auto‑delete after 3 hour.",
-      {
-        position: "top-center",
-        autoClose: 4000,
-        theme: "dark",
-      }
-    );
+  
 
     await fetchCodes();
     setShowSaved(true);
@@ -760,9 +739,7 @@ if (!isUnlocked) {
             <h2 className="text-3xl font-black bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
               ☁️ Cloud Vault
             </h2>
-            <p className="text-gray-400 mt-1">
-              Your codes • Auto-delete in 3h
-            </p>
+            
           </div>
 
           <button
