@@ -5,7 +5,17 @@ import { ToastContainer, toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, deleteDoc, doc } from "firebase/firestore";
+import { 
+  collection, 
+  addDoc, 
+  serverTimestamp, 
+  getDocs, 
+  query, 
+  orderBy, 
+  deleteDoc, 
+  doc,
+  updateDoc        // ✅ ADD THIS
+} from "firebase/firestore";
 import {
   FaEnvelope,
   FaInfoCircle,
@@ -123,6 +133,9 @@ const [showSaved, setShowSaved] = useState(false);
 const [newSavedTitle, setNewSavedTitle] = useState("");
 const [newSavedContent, setNewSavedContent] = useState("");
 const textareaRef = useRef(null);
+const [editingId, setEditingId] = useState(null);
+const [editingTitle, setEditingTitle] = useState("");
+const [editingContent, setEditingContent] = useState("");
 
 const fetchCodes = async () => {
   const q = query(collection(db, "codes"), orderBy("createdAt", "desc"));
@@ -136,25 +149,76 @@ const fetchCodes = async () => {
   setSavedCodes(allCodes);
 };
 
-const saveNewCodeDirectly = async () => {
-  if (!newSavedContent.trim()) {
+
+
+
+
+
+const updateCode = async () => {
+  if (!editingContent.trim()) {
     toast.error("Code cannot be empty");
     return;
   }
 
-  await addDoc(collection(db, "codes"), {
-    title: newSavedTitle,
-    content: newSavedContent,
-    createdAt: serverTimestamp(),
+  await updateDoc(doc(db, "codes", editingId), {
+    title: editingTitle,
+    content: editingContent,
+    updatedAt: serverTimestamp(),   // Track update time
   });
 
-  setNewSavedTitle("");
-  setNewSavedContent("");
+  toast.success("Code updated ✨");
 
-  await fetchCodes();
-  toast.success("Code saved ✅");
+  setEditingId(null);
+  setEditingTitle("");
+  setEditingContent("");
+
+  fetchCodes();
 };
 
+
+
+
+
+
+const saveNewCodeDirectly = async () => {
+  if (!newSavedContent.trim()) {
+    showError("⚠ Code cannot be empty");
+    return;
+  }
+
+  const loadingToast = toast.loading("💾 Saving to Cloud Vault...", {
+    position: "top-center",
+    theme: "dark",
+  });
+
+  try {
+    await addDoc(collection(db, "codes"), {
+      title: newSavedTitle,
+      content: newSavedContent,
+      createdAt: serverTimestamp(),
+    });
+
+    setNewSavedTitle("");
+    setNewSavedContent("");
+
+    await fetchCodes();
+
+    toast.update(loadingToast, {
+      render: "☁️ Code saved successfully!",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    });
+
+  } catch (err) {
+    toast.update(loadingToast, {
+      render: "❌ Failed to save code",
+      type: "error",
+      isLoading: false,
+      autoClose: 2500,
+    });
+  }
+};
 
   const removeImage = (i) =>
     setImages((prev) => prev.filter((_, idx) => idx !== i));
@@ -268,6 +332,18 @@ const showWhatsAppInfo = () => {
   if (channel === "whatsapp" && phone.length !== 10)
     return toast.error("Enter a valid 10-digit WhatsApp number");
 
+
+
+  const loadingToast = toast.loading(
+    channel === "email"
+      ? "📧 Sending Email..."
+      : "📲 Sending WhatsApp...",
+    {
+      position: "top-center",
+      theme: "dark",
+    }
+  );
+
   try {
     setLoading(true);
 
@@ -313,26 +389,37 @@ const showWhatsAppInfo = () => {
 
 
 
-    toast.success(res.data.message || "Sent 🚀");
-    // 🔥 Save to Firebase
-await addDoc(collection(db, "codes"), {
-  title,
-  content,
-  channel,
-  createdAt: serverTimestamp()
+    toast.update(loadingToast, {
+  render:
+    channel === "email"
+      ? "✅ Email sent successfully!"
+      : "✅ WhatsApp sent successfully!",
+  type: "success",
+  isLoading: false,
+  autoClose: 2000,
 });
+
 
     setContent("");
     setEmailUser("");
     setPhone("");
     setTitle("");
     setImages([]);
-  } catch (err) {
-    toast.error("WhatsApp limit exhausted or error occurred.");
-  } finally {
-    setLoading(false);
-  }
+} catch (err) {
+  toast.update(loadingToast, {
+    render: "❌ Failed to send. Try again.",
+    type: "error",
+    isLoading: false,
+    autoClose: 2500,
+  });
+} finally {
+  setLoading(false);
+}
 };
+
+
+
+
 
 
   /* ================= LOCK SCREEN ================= */
@@ -696,14 +783,19 @@ if (!isUnlocked) {
         </motion.button>
 
     
-
-
 <button
   onClick={async () => {
-  
+    const loadingToast = toast.loading("⏳ Have patience, loading codes...");
 
     await fetchCodes();
     setShowSaved(true);
+
+    toast.update(loadingToast, {
+      render: "☁️ Cloud Vault Loaded!",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    });
   }}
   className="mt-7 w-full flex items-center justify-center gap-2 py-3 rounded-xl
              bg-gradient-to-r from-indigo-600 to-purple-600
@@ -715,8 +807,9 @@ if (!isUnlocked) {
   <FaCloudUploadAlt className="text-lg" />
   Save Your Code
 </button>
-      </motion.div>
 
+
+      </motion.div>
 
 {showSaved && (
   <div
@@ -735,12 +828,9 @@ if (!isUnlocked) {
       {/* Header */}
       <div className="sticky top-0 p-8 border-b border-white/10 bg-black/50 backdrop-blur-xl rounded-t-3xl">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-black bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
-              ☁️ Cloud Vault
-            </h2>
-            
-          </div>
+          <h2 className="text-3xl font-black bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
+            ☁️ Cloud Vault
+          </h2>
 
           <button
             onClick={() => setShowSaved(false)}
@@ -751,7 +841,7 @@ if (!isUnlocked) {
         </div>
       </div>
 
-      {/* Add New Code */}
+      {/* Quick Save */}
       <div className="p-8 border-b border-white/5">
         <h3 className="text-xl font-bold mb-6 text-purple-300">
           ⚡ Quick Save
@@ -762,7 +852,7 @@ if (!isUnlocked) {
             value={newSavedTitle}
             onChange={(e) => setNewSavedTitle(e.target.value)}
             placeholder="Title (optional)"
-            className="p-4 rounded-2xl bg-black/30 border border-white/20 focus:border-purple-400 outline-none"
+            className="p-4 rounded-2xl bg-black/30 border border-white/20 outline-none"
           />
 
           <textarea
@@ -770,7 +860,7 @@ if (!isUnlocked) {
             value={newSavedContent}
             onChange={(e) => setNewSavedContent(e.target.value)}
             placeholder="Your code..."
-            className="lg:col-span-2 p-4 rounded-2xl bg-black/30 border border-white/20 focus:border-purple-400 outline-none font-mono resize-none"
+            className="lg:col-span-2 p-4 rounded-2xl bg-black/30 border border-white/20 outline-none font-mono resize-none"
           />
 
           <button
@@ -795,17 +885,28 @@ if (!isUnlocked) {
           savedCodes.map((item) => (
             <motion.div
               key={item.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
               className="group relative p-8 rounded-3xl bg-gradient-to-r from-white/5 to-black/30 
                          border border-white/10 hover:border-purple-400 
-                         hover:shadow-2xl hover:shadow-purple-500/30 
-                         transition-all backdrop-blur-xl overflow-hidden"
+                         hover:shadow-2xl hover:shadow-purple-500/30 transition-all"
             >
               <div className="flex justify-between items-start mb-6">
-                <h4 className="text-xl font-bold text-white pr-12">
-                  {item.title || "Untitled Code"}
-                </h4>
+                <div>
+                  <h4 className="text-xl font-bold text-white">
+                    {item.title || "Untitled Code"}
+                  </h4>
+
+                  {item.createdAt && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      🕒 {item.createdAt.toDate().toLocaleString()}
+                    </p>
+                  )}
+
+                  {item.updatedAt && (
+                    <p className="text-xs text-yellow-400 mt-1">
+                      ✏ Updated: {item.updatedAt.toDate().toLocaleString()}
+                    </p>
+                  )}
+                </div>
 
                 <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-all">
                   <button
@@ -816,6 +917,17 @@ if (!isUnlocked) {
                     className="p-3 hover:bg-green-500/20 rounded-2xl transition"
                   >
                     <FaCopy className="text-green-400" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setEditingId(item.id);
+                      setEditingTitle(item.title || "");
+                      setEditingContent(item.content);
+                    }}
+                    className="p-3 hover:bg-blue-500/20 rounded-2xl transition"
+                  >
+                    ✏
                   </button>
 
                   <button
@@ -831,9 +943,43 @@ if (!isUnlocked) {
                 </div>
               </div>
 
-              <pre className="font-mono text-sm leading-relaxed bg-black/40 p-6 rounded-2xl border border-white/10 overflow-x-auto max-h-64 overflow-y-auto">
-                {item.content}
-              </pre>
+              {/* Edit Mode */}
+              {editingId === item.id ? (
+                <div className="space-y-3">
+                  <input
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black/30 border border-white/20 outline-none"
+                  />
+
+                  <textarea
+                    rows="6"
+                    value={editingContent}
+                    onChange={(e) => setEditingContent(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black/30 border border-white/20 outline-none font-mono"
+                  />
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={updateCode}
+                      className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 transition"
+                    >
+                      Save
+                    </button>
+
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="px-4 py-2 rounded-xl bg-gray-600 hover:bg-gray-500 transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <pre className="font-mono text-sm leading-relaxed bg-black/40 p-6 rounded-2xl border border-white/10 overflow-x-auto max-h-64 overflow-y-auto">
+                  {item.content}
+                </pre>
+              )}
             </motion.div>
           ))
         )}
@@ -841,6 +987,7 @@ if (!isUnlocked) {
     </motion.div>
   </div>
 )}
+
 
     </div>
     
