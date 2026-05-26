@@ -647,328 +647,326 @@ const SendForm = () => {
       </motion.div>
 
       {/* ================= QUANTUM VAULT ================= */}
-      <AnimatePresence>
-        {showSaved && (
-          <div className="fixed inset-0 z-50 bg-zinc-950/95 backdrop-blur-2xl flex flex-col">
-            {/* Header */}
-            <div className="sticky top-0 z-30 px-10 py-7 border-b border-white/10 bg-zinc-950/95 backdrop-blur-2xl flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-purple-500 to-cyan-400 rounded-2xl shadow-inner">
-                  <FaCloudUploadAlt className="text-4xl text-white" />
-                </div>
-                <div>
-                  <h2 className="text-4xl font-black tracking-[-1px] bg-gradient-to-r from-purple-300 to-cyan-300 bg-clip-text text-transparent">
-                    Quantum Vault
-                  </h2>
-                  <div className="flex items-center gap-x-6 text-xs text-white/60">
-                    <span className="flex items-center gap-x-1"><FaStar className="text-amber-400" /> {vaultStats.favorites} favorites</span>
-                    <span>{vaultStats.total} snippets • {vaultStats.totalLines} lines</span>
-                  </div>
-                </div>
-              </div>
+     {/* ================= CLEAN MODERN QUANTUM VAULT ================= */}
+<AnimatePresence>
+  {showSaved && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-[#070b14] overflow-hidden"
+    >
+      {/* BACKGROUND */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-[-250px] left-[-200px] w-[600px] h-[600px] bg-fuchsia-500/10 blur-[150px] rounded-full" />
+        <div className="absolute bottom-[-250px] right-[-200px] w-[600px] h-[600px] bg-cyan-500/10 blur-[150px] rounded-full" />
+      </div>
 
-              <div className="flex items-center gap-x-6">
-                <motion.div className="px-5 py-2 bg-white/10 backdrop-blur rounded-3xl text-sm font-medium flex items-center gap-x-2 border border-white/10">
-                  <FaChartBar /> {vaultStats.total} total
-                </motion.div>
+      {/* ================= NAVBAR ================= */}
+      <div className="relative z-20 px-8 py-6 border-b border-white/10 backdrop-blur-3xl bg-black/20">
+        
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
 
-                <div className="flex bg-white/10 rounded-3xl p-1">
-                  {["all", "favorites", "recent"].map((tab) => (
-                    <motion.button
-                      key={tab}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-7 py-2 rounded-3xl text-sm font-medium transition-all ${activeTab === tab ? "bg-white text-black shadow-lg" : "hover:bg-white/10"}`}
-                    >
-                      {tab === "all" && "All"}
-                      {tab === "favorites" && "❤️ Favorites"}
-                      {tab === "recent" && "Recent"}
-                    </motion.button>
-                  ))}
-                </div>
-
-                <div className="flex border border-white/20 rounded-3xl overflow-hidden">
-                  <button onClick={() => setViewMode("grid")} className={`px-5 py-3 transition-all ${viewMode === "grid" ? "bg-cyan-400 text-black" : "hover:bg-white/10"}`}>
-                    <FaThLarge />
-                  </button>
-                  <button onClick={() => setViewMode("list")} className={`px-5 py-3 transition-all ${viewMode === "list" ? "bg-cyan-400 text-black" : "hover:bg-white/10"}`}>
-                    <FaListUl />
-                  </button>
-                </div>
-
-                <button onClick={() => setShowSaved(false)} className="w-10 h-10 flex items-center justify-center text-3xl hover:bg-red-500/20 rounded-2xl transition">
-                  ✕
-                </button>
-              </div>
+          {/* LEFT */}
+          <div className="flex items-center gap-5">
+            
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-cyan-400 flex items-center justify-center shadow-2xl">
+              <FaCloudUploadAlt className="text-white text-2xl" />
             </div>
 
-            {/* Search + Quick Save */}
-            <div className="px-10 py-6 border-b border-white/10 bg-black/40 flex flex-wrap gap-4 items-end">
-              <div className="relative flex-1 min-w-[300px]">
-                <FaSearch className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search the cosmos..."
-                  className="w-full pl-14 pr-8 py-6 bg-zinc-900/80 border border-white/10 rounded-3xl text-lg focus:border-cyan-400 outline-none placeholder:text-gray-400"
-                />
-              </div>
+            <div>
+              <h1 className="text-4xl font-black tracking-[-2px] bg-gradient-to-r from-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
+                Quantum Vault
+              </h1>
 
-              <div className="flex items-center gap-x-3">
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-white/10 border border-white/10 rounded-3xl px-6 py-6 text-sm focus:outline-none">
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="name">A → Z</option>
-                </select>
-
-                <button
-                  onClick={() => {
-                    setNewSavedTitle("");
-                    setNewSavedContent("");
-                  }}
-                  className="flex items-center gap-x-3 bg-gradient-to-r from-emerald-400 to-teal-400 text-black px-8 py-6 rounded-3xl font-semibold hover:scale-105 transition"
-                >
-                  <FaCode /> New Snippet
-                </button>
-              </div>
-
-              <div className="flex-1 min-w-[420px] grid grid-cols-12 gap-4 bg-white/5 border border-white/10 rounded-3xl p-5">
-                <input
-                  value={newSavedTitle}
-                  onChange={(e) => setNewSavedTitle(e.target.value)}
-                  placeholder="Snippet title"
-                  className="col-span-4 p-5 bg-black/60 rounded-2xl border border-white/10 focus:border-purple-400 outline-none text-base"
-                />
-                <textarea
-                  rows="2"
-                  value={newSavedContent}
-                  onChange={(e) => setNewSavedContent(e.target.value)}
-                  placeholder="Paste your masterpiece here..."
-                  className="col-span-6 p-5 font-mono bg-black/60 rounded-2xl border border-white/10 focus:border-purple-400 outline-none resize-none"
-                />
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={saveNewCodeDirectly}
-                  className="col-span-2 bg-gradient-to-r from-cyan-400 to-purple-500 font-bold rounded-2xl text-lg active:scale-95 transition-all"
-                >
-                  SAVE
-                </motion.button>
-              </div>
-            </div>
-
-            {/* Vault Content */}
-            <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scroll">
-              {filteredCodes.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="text-8xl mb-8 opacity-30">☁️</div>
-                  <h3 className="text-3xl font-light text-gray-400">The vault is empty here...</h3>
-                </div>
-              ) : viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCodes.map((item, index) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 40 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.04 }}
-                      whileHover={{ scale: 1.04 }}
-                      onClick={() => {
-                        setSelectedItem(item);
-                        setShowDetail(true);
-                      }}
-                      className="group relative bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white/10 hover:border-cyan-400/60 rounded-3xl p-7 cursor-pointer overflow-hidden"
-                    >
-                      <div className="flex justify-between items-start mb-4">
-                        <h4 className="text-xl font-semibold line-clamp-2 pr-4 flex-1">{item.title || "Untitled"}</h4>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(item.id, item.isFavorite);
-                          }}
-                          className="text-2xl"
-                        >
-                          {item.isFavorite ? <FaHeart className="text-red-400" /> : <FaHeart className="text-white/30 group-hover:text-white/60" />}
-                        </button>
-                      </div>
-
-                      <pre className="font-mono text-xs bg-black/70 p-5 rounded-2xl h-40 overflow-hidden text-gray-300 line-clamp-6">
-                        {item.content.substring(0, 240)}...
-                      </pre>
-
-                      <div className="absolute bottom-7 right-7 flex gap-x-2 opacity-0 group-hover:opacity-100 transition">
-                        <button onClick={(e) => { e.stopPropagation(); copyToClipboard(item.content); }} className="p-3 bg-green-500/10 hover:bg-green-500/30 rounded-2xl">
-                          <FaCopy />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteCode(item.id); }} className="p-3 bg-red-500/10 hover:bg-red-500/30 rounded-2xl">
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredCodes.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="group flex items-start gap-6 bg-zinc-900/80 border border-white/10 hover:border-purple-400/40 rounded-3xl p-8 transition-all"
-                      onClick={() => {
-                        setSelectedItem(item);
-                        setShowDetail(true);
-                      }}
-                    >
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <h4 className="text-2xl font-semibold">{item.title || "Untitled"}</h4>
-                          <div className="flex items-center gap-x-4">
-                            {item.isFavorite && <FaHeart className="text-red-400" />}
-                            <span className="text-xs px-4 py-1 bg-white/10 rounded-3xl text-gray-400">
-                              {item.createdAt?.toDate?.().toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <pre className="font-mono mt-4 text-sm text-gray-400 line-clamp-3 bg-black/50 p-5 rounded-2xl">
-                          {item.content}
-                        </pre>
-                      </div>
-
-                      <div className="flex flex-col gap-y-2 opacity-0 group-hover:opacity-100 transition-all">
-                        <button onClick={(e) => { e.stopPropagation(); copyToClipboard(item.content); }} className="p-4 hover:bg-green-400/20 rounded-2xl">
-                          <FaCopy className="text-green-400" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingId(item.id);
-                            setEditingTitle(item.title || "");
-                            setEditingContent(item.content);
-                          }}
-                          className="p-4 hover:bg-blue-400/20 rounded-2xl"
-                        >
-                          <FaEdit className="text-blue-400" />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteCode(item.id); }} className="p-4 hover:bg-red-400/20 rounded-2xl">
-                          <FaTrash className="text-red-400" />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
+              <p className="text-white/40 text-sm mt-1">
+                {vaultStats.total} snippets saved
+              </p>
             </div>
           </div>
-        )}
-      </AnimatePresence>
 
-      {/* Detail Modal */}
+          {/* RIGHT */}
+          <div className="flex flex-wrap items-center gap-4">
+
+            {/* SEARCH */}
+            <div className="relative">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-fuchsia-300" />
+
+              <input
+                type="text"
+                placeholder="Search snippets..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-[280px] pl-12 pr-5 py-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white placeholder:text-white/30 outline-none focus:border-fuchsia-400"
+              />
+            </div>
+
+            {/* SORT */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-5 py-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white outline-none"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="name">A-Z</option>
+            </select>
+
+            {/* CLOSE */}
+            <button
+              onClick={() => setShowSaved(false)}
+              className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-400/20 text-red-400 text-2xl hover:bg-red-500/20 transition"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* CREATE BUTTON */}
+        <div className="mt-6">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => {
+              setNewSavedTitle("");
+              setNewSavedContent("");
+              setShowDetail(true);
+            }}
+            className="px-7 py-4 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white font-bold shadow-[0_0_40px_rgba(168,85,247,0.35)] flex items-center gap-3"
+          >
+            <FaCode />
+            Create Snippet
+          </motion.button>
+        </div>
+      </div>
+
+      {/* ================= CONTENT ================= */}
+      <div className="relative z-10 h-[calc(100vh-170px)] overflow-y-auto px-8 py-8">
+
+        {filteredCodes.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center">
+            <div className="text-[130px] opacity-20">🌌</div>
+
+            <h2 className="text-5xl font-black text-white mt-5">
+              No Snippets Yet
+            </h2>
+
+            <p className="text-white/40 text-lg mt-3">
+              Create your first futuristic snippet.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-7">
+
+            {filteredCodes.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03 }}
+                whileHover={{
+                  y: -8,
+                  scale: 1.02,
+                }}
+                className="group rounded-[34px] border border-white/10 bg-white/[0.05] backdrop-blur-3xl overflow-hidden"
+              >
+                {/* CARD */}
+                <div
+                  onClick={() => {
+                    setSelectedItem(item);
+
+                    setEditingId(item.id);
+                    setEditingTitle(item.title || "");
+                    setEditingContent(item.content);
+
+                    setShowDetail(true);
+                  }}
+                  className="p-6 cursor-pointer"
+                >
+                  {/* TOP */}
+                  <div className="flex justify-between items-start mb-5">
+
+                    <div>
+                      <h3 className="text-2xl font-black text-white line-clamp-2">
+                        {item.title || "Untitled"}
+                      </h3>
+
+                      <p className="text-sm text-white/30 mt-2">
+                        {item.createdAt?.toDate?.().toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(item.id, item.isFavorite);
+                      }}
+                      className="text-2xl"
+                    >
+                      {item.isFavorite ? (
+                        <FaHeart className="text-fuchsia-400" />
+                      ) : (
+                        <FaHeart className="text-white/20 group-hover:text-white/50" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* CODE PREVIEW */}
+                  <div className="rounded-[28px] border border-white/10 bg-[#0a0f1d] overflow-hidden">
+
+                    <div className="flex gap-2 px-5 py-4 border-b border-white/10 bg-white/[0.03]">
+                      <div className="w-3 h-3 rounded-full bg-red-400" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                    </div>
+
+                    <pre className="p-5 text-sm font-mono text-cyan-100 overflow-hidden h-56 leading-7">
+                      {item.content.substring(0, 350)}...
+                    </pre>
+                  </div>
+                </div>
+
+                {/* ACTIONS */}
+                <div className="px-6 pb-6 flex items-center gap-3">
+
+                  <button
+                    onClick={() => copyToClipboard(item.content)}
+                    className="flex-1 py-4 rounded-2xl bg-cyan-500/10 border border-cyan-400/10 text-cyan-300 font-semibold hover:bg-cyan-500/20 transition"
+                  >
+                    Copy
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSelectedItem(item);
+
+                      setEditingId(item.id);
+                      setEditingTitle(item.title || "");
+                      setEditingContent(item.content);
+
+                      setShowDetail(true);
+                    }}
+                    className="flex-1 py-4 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-400/10 text-fuchsia-300 font-semibold hover:bg-fuchsia-500/20 transition"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteCode(item.id)}
+                    className="w-16 rounded-2xl bg-red-500/10 border border-red-400/10 text-red-300 hover:bg-red-500/20 transition flex items-center justify-center"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ================= MODAL ================= */}
       <AnimatePresence>
-        {showDetail && selectedItem && (
+        {showDetail && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[110] flex items-center justify-center p-6"
-            onClick={() => setShowDetail(false)}
+            className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-6"
           >
             <motion.div
-              initial={{ scale: 0.9, y: 50 }}
+              initial={{ scale: 0.9, y: 40 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 50 }}
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-4xl w-full bg-zinc-950 border border-cyan-400/30 rounded-3xl overflow-hidden max-h-[92vh] flex flex-col"
+              exit={{ scale: 0.9, y: 40 }}
+              className="w-full max-w-4xl rounded-[40px] border border-white/10 bg-[#0b1020] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.6)]"
             >
-              <div className="px-10 py-6 border-b flex items-center justify-between bg-gradient-to-r from-zinc-900 to-black">
-                <div className="flex items-center gap-x-4">
-                  <FaGem className="text-4xl text-cyan-400" />
-                  <div>
-                    <h2 className="text-3xl font-semibold">{selectedItem.title || "Untitled"}</h2>
-                    <div className="flex gap-x-4 text-xs text-gray-400">
-                      <span>Created {selectedItem.createdAt?.toDate?.().toLocaleString()}</span>
-                    </div>
-                  </div>
+              {/* HEADER */}
+              <div className="px-8 py-6 border-b border-white/10 flex items-center justify-between">
+                
+                <div>
+                  <h2 className="text-4xl font-black text-white">
+                    {selectedItem ? "Edit Snippet" : "Create Snippet"}
+                  </h2>
+
+                  <p className="text-white/40 mt-2">
+                    Save and manage your futuristic code
+                  </p>
                 </div>
 
-                <div className="flex gap-x-4">
+                <button
+                  onClick={() => {
+                    setShowDetail(false);
+                    setSelectedItem(null);
+                  }}
+                  className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-400/20 text-red-400 text-2xl hover:bg-red-500/20 transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* BODY */}
+              <div className="p-8">
+
+                {/* TITLE */}
+                <input
+                  value={editingId ? editingTitle : newSavedTitle}
+                  onChange={(e) =>
+                    editingId
+                      ? setEditingTitle(e.target.value)
+                      : setNewSavedTitle(e.target.value)
+                  }
+                  placeholder="Snippet title..."
+                  className="w-full px-6 py-5 rounded-3xl bg-white/[0.05] border border-white/10 text-white text-2xl font-bold outline-none focus:border-fuchsia-400"
+                />
+
+                {/* CODE */}
+                <textarea
+                  rows="16"
+                  value={editingId ? editingContent : newSavedContent}
+                  onChange={(e) =>
+                    editingId
+                      ? setEditingContent(e.target.value)
+                      : setNewSavedContent(e.target.value)
+                  }
+                  placeholder="// Paste your code here..."
+                  className="w-full mt-6 p-6 rounded-[32px] bg-[#070b14] border border-white/10 text-cyan-100 font-mono outline-none resize-none leading-7 focus:border-cyan-400"
+                />
+
+                {/* BUTTONS */}
+                <div className="flex gap-4 mt-8">
+
                   <button
-                    onClick={() => toggleFavorite(selectedItem.id, selectedItem.isFavorite)}
-                    className="flex items-center gap-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-3xl text-sm"
+                    onClick={async () => {
+                      if (editingId) {
+                        await updateCode();
+                      } else {
+                        await saveNewCodeDirectly();
+                      }
+
+                      setShowDetail(false);
+                    }}
+                    className="flex-1 py-5 rounded-3xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white font-black text-lg"
                   >
-                    <FaHeart className={selectedItem.isFavorite ? "text-red-400" : ""} /> Favorite
+                    {editingId ? "Save Changes" : "Create Snippet"}
                   </button>
+
                   <button
-                    onClick={() => copyToClipboard(selectedItem.content)}
-                    className="flex items-center gap-x-2 px-6 py-3 bg-green-500/10 hover:bg-green-500/30 rounded-3xl text-sm"
+                    onClick={() => {
+                      setShowDetail(false);
+                      setSelectedItem(null);
+                    }}
+                    className="px-10 py-5 rounded-3xl bg-white/[0.05] border border-white/10 text-white font-semibold hover:bg-white/[0.08]"
                   >
-                    <FaCopy /> Copy
+                    Cancel
                   </button>
-                  <button
-                    onClick={() => downloadSnippet(selectedItem)}
-                    className="flex items-center gap-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-3xl text-sm"
-                  >
-                    <FaDownload /> Download
-                  </button>
-                  <button onClick={() => setShowDetail(false)} className="px-6 text-4xl leading-none text-gray-400 hover:text-white">✕</button>
                 </div>
-              </div>
-
-              <div className="flex-1 p-10 overflow-auto font-mono text-base bg-black/70 leading-relaxed whitespace-pre-wrap border-b border-white/10">
-                {editingId === selectedItem.id ? (
-                  <div>
-                    <input
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      className="w-full mb-6 p-6 bg-zinc-900 rounded-3xl border border-white/20 text-2xl font-semibold outline-none"
-                    />
-                    <textarea
-                      value={editingContent}
-                      onChange={(e) => setEditingContent(e.target.value)}
-                      rows={20}
-                      className="w-full p-8 font-mono bg-zinc-900 rounded-3xl border border-white/20 outline-none resize-none"
-                    />
-                  </div>
-                ) : (
-                  <pre className="text-cyan-100 text-lg leading-relaxed tracking-[-0.5px]">{selectedItem.content}</pre>
-                )}
-              </div>
-
-              <div className="p-8 flex gap-x-4 bg-zinc-900">
-                {editingId === selectedItem.id ? (
-                  <>
-                    <button onClick={updateCode} className="flex-1 py-6 bg-green-500 text-black font-bold rounded-3xl text-xl hover:bg-green-400 transition">
-                      SAVE CHANGES
-                    </button>
-                    <button onClick={() => setEditingId(null)} className="flex-1 py-6 bg-white/10 rounded-3xl text-xl hover:bg-white/20 transition">
-                      CANCEL
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => {
-                        setEditingId(selectedItem.id);
-                        setEditingTitle(selectedItem.title || "");
-                        setEditingContent(selectedItem.content);
-                      }}
-                      className="flex-1 flex items-center justify-center gap-x-3 py-6 bg-white/10 hover:bg-white/20 rounded-3xl text-xl transition"
-                    >
-                      <FaEdit /> Edit
-                    </button>
-                    <button
-                      onClick={() => deleteCode(selectedItem.id)}
-                      className="flex-1 flex items-center justify-center gap-x-3 py-6 bg-red-500/10 hover:bg-red-500/30 rounded-3xl text-xl text-red-400 transition"
-                    >
-                      <FaTrash /> Delete
-                    </button>
-                  </>
-                )}
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+    </motion.div>
+  )}
+</AnimatePresence>
     </div>
   );
 };
