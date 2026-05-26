@@ -663,33 +663,33 @@ const SendForm = () => {
       </div>
 
       {/* ================= NAVBAR ================= */}
-      <div className="relative z-20 px-8 py-6 border-b border-white/10 backdrop-blur-3xl bg-black/20">
-        
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+      <div className="relative z-20 px-4 sm:px-6 lg:px-8 py-5 border-b border-white/10 backdrop-blur-3xl bg-black/20">
+
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
 
           {/* LEFT */}
-          <div className="flex items-center gap-5">
-            
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-cyan-400 flex items-center justify-center shadow-2xl">
-              <FaCloudUploadAlt className="text-white text-2xl" />
+          <div className="flex items-center gap-4 sm:gap-5">
+
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-cyan-400 flex items-center justify-center shadow-2xl shrink-0">
+              <FaCloudUploadAlt className="text-white text-xl sm:text-2xl" />
             </div>
 
             <div>
-              <h1 className="text-4xl font-black tracking-[-2px] bg-gradient-to-r from-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-4xl font-black tracking-[-2px] bg-gradient-to-r from-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
                 Quantum Vault
               </h1>
 
-              <p className="text-white/40 text-sm mt-1">
+              <p className="text-white/40 text-xs sm:text-sm mt-1">
                 {vaultStats.total} snippets saved
               </p>
             </div>
           </div>
 
           {/* RIGHT */}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full xl:w-auto">
 
             {/* SEARCH */}
-            <div className="relative">
+            <div className="relative flex-1 min-w-0">
               <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-fuchsia-300" />
 
               <input
@@ -697,7 +697,7 @@ const SendForm = () => {
                 placeholder="Search snippets..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-[280px] pl-12 pr-5 py-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white placeholder:text-white/30 outline-none focus:border-fuchsia-400"
+                className="w-full sm:w-[260px] lg:w-[300px] pl-12 pr-5 py-3 sm:py-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white placeholder:text-white/30 outline-none focus:border-fuchsia-400"
               />
             </div>
 
@@ -705,7 +705,7 @@ const SendForm = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-5 py-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white outline-none"
+              className="px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-white/[0.05] border border-white/10 text-white outline-none"
             >
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
@@ -715,7 +715,7 @@ const SendForm = () => {
             {/* CLOSE */}
             <button
               onClick={() => setShowSaved(false)}
-              className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-400/20 text-red-400 text-2xl hover:bg-red-500/20 transition"
+              className="w-full sm:w-14 h-12 sm:h-14 rounded-2xl bg-red-500/10 border border-red-400/20 text-red-400 text-xl sm:text-2xl hover:bg-red-500/20 transition"
             >
               ✕
             </button>
@@ -723,7 +723,7 @@ const SendForm = () => {
         </div>
 
         {/* CREATE BUTTON */}
-        <div className="mt-6">
+        <div className="mt-5 sm:mt-6">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
@@ -732,7 +732,7 @@ const SendForm = () => {
               setNewSavedContent("");
               setShowDetail(true);
             }}
-            className="px-7 py-4 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white font-bold shadow-[0_0_40px_rgba(168,85,247,0.35)] flex items-center gap-3"
+            className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-4 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white font-bold shadow-[0_0_40px_rgba(168,85,247,0.35)] flex items-center justify-center gap-3"
           >
             <FaCode />
             Create Snippet
@@ -741,22 +741,25 @@ const SendForm = () => {
       </div>
 
       {/* ================= CONTENT ================= */}
-      <div className="relative z-10 h-[calc(100vh-170px)] overflow-y-auto px-8 py-8">
+      <div className="relative z-10 h-[calc(100vh-190px)] overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
         {filteredCodes.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center">
-            <div className="text-[130px] opacity-20">🌌</div>
+          <div className="h-full flex flex-col items-center justify-center text-center px-4">
 
-            <h2 className="text-5xl font-black text-white mt-5">
+            <div className="text-[80px] sm:text-[130px] opacity-20">
+              🌌
+            </div>
+
+            <h2 className="text-3xl sm:text-5xl font-black text-white mt-5">
               No Snippets Yet
             </h2>
 
-            <p className="text-white/40 text-lg mt-3">
+            <p className="text-white/40 text-base sm:text-lg mt-3">
               Create your first futuristic snippet.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-7">
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5 sm:gap-7">
 
             {filteredCodes.map((item, index) => (
               <motion.div
@@ -768,8 +771,9 @@ const SendForm = () => {
                   y: -8,
                   scale: 1.02,
                 }}
-                className="group rounded-[34px] border border-white/10 bg-white/[0.05] backdrop-blur-3xl overflow-hidden"
+                className="group rounded-[28px] sm:rounded-[34px] border border-white/10 bg-white/[0.05] backdrop-blur-3xl overflow-hidden"
               >
+
                 {/* CARD */}
                 <div
                   onClick={() => {
@@ -781,17 +785,18 @@ const SendForm = () => {
 
                     setShowDetail(true);
                   }}
-                  className="p-6 cursor-pointer"
+                  className="p-4 sm:p-6 cursor-pointer"
                 >
-                  {/* TOP */}
-                  <div className="flex justify-between items-start mb-5">
 
-                    <div>
-                      <h3 className="text-2xl font-black text-white line-clamp-2">
+                  {/* TOP */}
+                  <div className="flex justify-between items-start gap-4 mb-5">
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xl sm:text-2xl font-black text-white line-clamp-2 break-words">
                         {item.title || "Untitled"}
                       </h3>
 
-                      <p className="text-sm text-white/30 mt-2">
+                      <p className="text-xs sm:text-sm text-white/30 mt-2">
                         {item.createdAt?.toDate?.().toLocaleDateString()}
                       </p>
                     </div>
@@ -801,7 +806,7 @@ const SendForm = () => {
                         e.stopPropagation();
                         toggleFavorite(item.id, item.isFavorite);
                       }}
-                      className="text-2xl"
+                      className="text-xl sm:text-2xl shrink-0"
                     >
                       {item.isFavorite ? (
                         <FaHeart className="text-fuchsia-400" />
@@ -812,26 +817,26 @@ const SendForm = () => {
                   </div>
 
                   {/* CODE PREVIEW */}
-                  <div className="rounded-[28px] border border-white/10 bg-[#0a0f1d] overflow-hidden">
+                  <div className="rounded-[22px] sm:rounded-[28px] border border-white/10 bg-[#0a0f1d] overflow-hidden">
 
-                    <div className="flex gap-2 px-5 py-4 border-b border-white/10 bg-white/[0.03]">
+                    <div className="flex gap-2 px-4 sm:px-5 py-3 sm:py-4 border-b border-white/10 bg-white/[0.03]">
                       <div className="w-3 h-3 rounded-full bg-red-400" />
                       <div className="w-3 h-3 rounded-full bg-yellow-400" />
                       <div className="w-3 h-3 rounded-full bg-green-400" />
                     </div>
 
-                    <pre className="p-5 text-sm font-mono text-cyan-100 overflow-hidden h-56 leading-7">
+                    <pre className="p-4 sm:p-5 text-xs sm:text-sm font-mono text-cyan-100 overflow-hidden h-44 sm:h-56 leading-6 sm:leading-7 whitespace-pre-wrap break-words">
                       {item.content.substring(0, 350)}...
                     </pre>
                   </div>
                 </div>
 
                 {/* ACTIONS */}
-                <div className="px-6 pb-6 flex items-center gap-3">
+                <div className="px-4 sm:px-6 pb-4 sm:pb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
 
                   <button
                     onClick={() => copyToClipboard(item.content)}
-                    className="flex-1 py-4 rounded-2xl bg-cyan-500/10 border border-cyan-400/10 text-cyan-300 font-semibold hover:bg-cyan-500/20 transition"
+                    className="flex-1 py-3 sm:py-4 rounded-2xl bg-cyan-500/10 border border-cyan-400/10 text-cyan-300 font-semibold hover:bg-cyan-500/20 transition"
                   >
                     Copy
                   </button>
@@ -846,14 +851,14 @@ const SendForm = () => {
 
                       setShowDetail(true);
                     }}
-                    className="flex-1 py-4 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-400/10 text-fuchsia-300 font-semibold hover:bg-fuchsia-500/20 transition"
+                    className="flex-1 py-3 sm:py-4 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-400/10 text-fuchsia-300 font-semibold hover:bg-fuchsia-500/20 transition"
                   >
                     Edit
                   </button>
 
                   <button
                     onClick={() => deleteCode(item.id)}
-                    className="w-16 rounded-2xl bg-red-500/10 border border-red-400/10 text-red-300 hover:bg-red-500/20 transition flex items-center justify-center"
+                    className="w-full sm:w-16 h-12 sm:h-auto rounded-2xl bg-red-500/10 border border-red-400/10 text-red-300 hover:bg-red-500/20 transition flex items-center justify-center"
                   >
                     <FaTrash />
                   </button>
@@ -871,23 +876,25 @@ const SendForm = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-6"
+            className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6"
           >
+
             <motion.div
               initial={{ scale: 0.9, y: 40 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 40 }}
-              className="w-full max-w-4xl rounded-[40px] border border-white/10 bg-[#0b1020] overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.6)]"
+              className="w-full max-w-[95%] sm:max-w-2xl lg:max-w-3xl xl:max-w-4xl rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#0b1020] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] max-h-[90vh] flex flex-col"
             >
+
               {/* HEADER */}
-              <div className="px-8 py-6 border-b border-white/10 flex items-center justify-between">
-                
+              <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex items-center justify-between gap-4">
+
                 <div>
-                  <h2 className="text-4xl font-black text-white">
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">
                     {selectedItem ? "Edit Snippet" : "Create Snippet"}
                   </h2>
 
-                  <p className="text-white/40 mt-2">
+                  <p className="text-white/40 mt-2 text-sm sm:text-base">
                     Save and manage your futuristic code
                   </p>
                 </div>
@@ -897,14 +904,14 @@ const SendForm = () => {
                     setShowDetail(false);
                     setSelectedItem(null);
                   }}
-                  className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-400/20 text-red-400 text-2xl hover:bg-red-500/20 transition"
+                  className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-400/20 text-red-400 text-xl sm:text-2xl hover:bg-red-500/20 transition shrink-0"
                 >
                   ✕
                 </button>
               </div>
 
               {/* BODY */}
-              <div className="p-8">
+              <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto">
 
                 {/* TITLE */}
                 <input
@@ -915,12 +922,12 @@ const SendForm = () => {
                       : setNewSavedTitle(e.target.value)
                   }
                   placeholder="Snippet title..."
-                  className="w-full px-6 py-5 rounded-3xl bg-white/[0.05] border border-white/10 text-white text-2xl font-bold outline-none focus:border-fuchsia-400"
+                  className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-2xl sm:rounded-3xl bg-white/[0.05] border border-white/10 text-white text-lg sm:text-xl lg:text-2xl font-bold outline-none focus:border-fuchsia-400"
                 />
 
                 {/* CODE */}
                 <textarea
-                  rows="16"
+                  rows="10"
                   value={editingId ? editingContent : newSavedContent}
                   onChange={(e) =>
                     editingId
@@ -928,11 +935,11 @@ const SendForm = () => {
                       : setNewSavedContent(e.target.value)
                   }
                   placeholder="// Paste your code here..."
-                  className="w-full mt-6 p-6 rounded-[32px] bg-[#070b14] border border-white/10 text-cyan-100 font-mono outline-none resize-none leading-7 focus:border-cyan-400"
+                  className="w-full mt-5 p-4 sm:p-6 rounded-2xl sm:rounded-[32px] bg-[#070b14] border border-white/10 text-cyan-100 font-mono text-sm sm:text-base outline-none resize-none leading-6 sm:leading-7 focus:border-cyan-400 min-h-[220px] max-h-[45vh] overflow-y-auto"
                 />
 
                 {/* BUTTONS */}
-                <div className="flex gap-4 mt-8">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
 
                   <button
                     onClick={async () => {
@@ -944,7 +951,7 @@ const SendForm = () => {
 
                       setShowDetail(false);
                     }}
-                    className="flex-1 py-5 rounded-3xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white font-black text-lg"
+                    className="flex-1 py-4 sm:py-5 rounded-3xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white font-black text-base sm:text-lg"
                   >
                     {editingId ? "Save Changes" : "Create Snippet"}
                   </button>
@@ -954,7 +961,7 @@ const SendForm = () => {
                       setShowDetail(false);
                       setSelectedItem(null);
                     }}
-                    className="px-10 py-5 rounded-3xl bg-white/[0.05] border border-white/10 text-white font-semibold hover:bg-white/[0.08]"
+                    className="px-8 sm:px-10 py-4 sm:py-5 rounded-3xl bg-white/[0.05] border border-white/10 text-white font-semibold hover:bg-white/[0.08]"
                   >
                     Cancel
                   </button>
