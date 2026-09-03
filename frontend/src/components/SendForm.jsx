@@ -105,7 +105,7 @@ const toBase64 = (file) =>
 
 /* ================= MAIN COMPONENT ================= */
 const SendForm = () => {
-  const CORRECT_PASSKEY = "4176";
+  const CORRECT_PASSKEY = "1234";
   const unlockingRef = useRef(false);
 
   const [shake, setShake] = useState(false);
